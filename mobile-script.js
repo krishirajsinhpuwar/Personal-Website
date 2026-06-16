@@ -68,3 +68,35 @@ document.addEventListener("keydown", function (e) {
 		}
 	}
 });
+
+// touch outside sheet to close
+document.getElementById("modal-backdrop").addEventListener("click", closeSection);
+
+// swipe down to close sheet
+let startY = 0;
+let currentY = 0;
+const sheet = document.getElementById("content-modal");
+sheet.addEventListener("touchstart", function (e) {
+	if (e.touches.length === 1) {
+		startY = e.touches[0].clientY;
+	}
+});
+sheet.addEventListener("touchmove", function (e) {
+	if (e.touches.length === 1) {
+		currentY = e.touches[0].clientY;
+		const deltaY = currentY - startY;
+		if (deltaY > 0) {
+			sheet.style.transform = `translateY(${deltaY}px)`;
+		}
+	}
+});
+sheet.addEventListener("touchend", function (e) {
+	if (e.changedTouches.length === 1) {
+		const deltaY = currentY - startY;
+		if (deltaY > 100) {
+			closeSection();
+		} else {
+			sheet.style.transform = "translateY(0)";
+		}
+	}
+});
