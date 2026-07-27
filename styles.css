@@ -173,6 +173,8 @@ body::after {
 	align-items: center;
 	gap: 10px;
 	font-size: 0.95rem;
+	text-decoration: none;
+	border-bottom: 0;
 }
 
 .nav-item:hover,

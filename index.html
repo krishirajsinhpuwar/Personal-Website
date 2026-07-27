@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 	<head>
-		<script src="script.js"></script>
+		<script src="script.js" defer></script>
 
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -132,33 +132,45 @@
 			<div class="terminal-body">
 				<div class="sidebar">
 					<div class="sidebar-header">Explorer</div>
-					<div class="nav-item" onclick="showSection('cv')">
+					<a class="nav-item" href="#cv" data-section="cv">
 						<span class="nav-icon">📃</span> CV.pdf
-					</div>
-					<div class="nav-item" onclick="showSection('profile')">
+					</a>
+					<a class="nav-item" href="#profile" data-section="profile">
 						<span class="nav-icon">👤</span> profile.json
-					</div>
-					<div class="nav-item" onclick="showSection('experience')">
+					</a>
+					<a
+						class="nav-item"
+						href="#experience"
+						data-section="experience"
+					>
 						<span class="nav-icon">💼</span> experience.log
-					</div>
-					<div class="nav-item" onclick="showSection('education')">
+					</a>
+					<a class="nav-item" href="#education" data-section="education">
 						<span class="nav-icon">🎓</span> education.log
-					</div>
-					<div class="nav-item" onclick="showSection('skills')">
+					</a>
+					<a class="nav-item" href="#skills" data-section="skills">
 						<span class="nav-icon">🛠️</span> skills.json
-					</div>
-					<div class="nav-item" onclick="showSection('projects')">
+					</a>
+					<a class="nav-item" href="#projects" data-section="projects">
 						<span class="nav-icon">🏗️</span> projects.list
-					</div>
-					<div class="nav-item" onclick="showSection('certificates')">
+					</a>
+					<a
+						class="nav-item"
+						href="#certificates"
+						data-section="certificates"
+					>
 						<span class="nav-icon">📜</span> certificates.list
-					</div>
-					<div class="nav-item" onclick="showSection('hackathons')">
+					</a>
+					<a
+						class="nav-item"
+						href="#hackathons"
+						data-section="hackathons"
+					>
 						<span class="nav-icon">💡</span> hackathons.list
-					</div>
-					<div class="nav-item" onclick="showSection('contact')">
+					</a>
+					<a class="nav-item" href="#contact" data-section="contact">
 						<span class="nav-icon">🌐</span> contact.info
-					</div>
+					</a>
 				</div>
 
 				<div class="content-area" id="main-output">
@@ -275,10 +287,7 @@
 								<br />
 								<li>
 									<span class="key">"Contact"</span>:
-									<a
-										href="#"
-										onclick="showSection('contact')"
-									>
+									<a href="#contact">
 										<span class="value"
 											>"see contact.info"</span
 										>
