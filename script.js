@@ -1,5 +1,4 @@
 // Section Routing Logic
-// Every section is addressable from the URL, e.g. https://site/#projects
 const SECTIONS = {
 	cv: "CV",
 	profile: "Profile",
@@ -15,19 +14,22 @@ const SECTIONS = {
 const DEFAULT_SECTION = "profile";
 const BASE_TITLE = "Krishirajsinh Puwar";
 
-// Resolve which section the current URL points at
+// Work out which section the current URL points at
 function sectionFromUrl() {
+	// Clean path, e.g. /projects or /projects/
+	const path = decodeURIComponent(location.pathname)
+		.split("/")
+		.filter(Boolean)
+		.pop()
+		?.replace(/\.html?$/, "")
+		.toLowerCase();
+	if (path in SECTIONS) return path;
+
+	// Legacy hash links, e.g. /#projects
 	const hash = decodeURIComponent(location.hash.replace(/^#/, ""))
 		.trim()
 		.toLowerCase();
 	if (hash in SECTIONS) return hash;
-
-	// Also honour path-style URLs (e.g. /projects) so they work on hosts
-	// that rewrite unknown paths to index.html
-	const path = decodeURIComponent(location.pathname.split("/").pop() || "")
-		.replace(/\.html?$/, "")
-		.toLowerCase();
-	if (path in SECTIONS) return path;
 
 	return DEFAULT_SECTION;
 }
@@ -35,12 +37,10 @@ function sectionFromUrl() {
 function showSection(sectionId) {
 	const id = sectionId in SECTIONS ? sectionId : DEFAULT_SECTION;
 
-	// Show only the selected section
 	document
 		.querySelectorAll(".section")
 		.forEach((sec) => sec.classList.toggle("hidden-section", sec.id !== id));
 
-	// Update active sidebar item
 	document
 		.querySelectorAll(".nav-item")
 		.forEach((item) =>
@@ -50,21 +50,56 @@ function showSection(sectionId) {
 	document.title =
 		id === DEFAULT_SECTION ? BASE_TITLE : `${SECTIONS[id]} | ${BASE_TITLE}`;
 
-	// Start each section from the top
 	const content = document.getElementById("main-output");
 	if (content) content.scrollTop = 0;
 }
 
-function route() {
-	showSection(sectionFromUrl());
+// Change section WITHOUT reloading the page
+function navigate(id) {
+	if (!(id in SECTIONS)) return;
+	const url = `/${id}`;
+	if (location.pathname !== url) {
+		history.pushState({ section: id }, "", url);
+	}
+	showSection(id);
 }
 
-// The sidebar links carry the URL, so back/forward navigation just works
-window.addEventListener("hashchange", route);
+// Intercept clicks on sidebar items (and any in-page link to a section)
+document.addEventListener("click", (e) => {
+	// Let ctrl/cmd/shift/middle-click behave normally (open in new tab, etc.)
+	if (e.defaultPrevented || e.button !== 0) return;
+	if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
-// The script is deferred, so the DOM is already parsed by the time it runs
+	const el = e.target.closest(".nav-item, a[href]");
+	if (!el) return;
+
+	let id = el.dataset.section;
+
+	// Fallback for plain links like <a href="/projects">
+	if (!id && el.tagName === "A") {
+		const url = new URL(el.href, location.origin);
+		if (url.origin !== location.origin) return;
+		const slug = url.pathname.split("/").filter(Boolean).pop();
+		if (slug in SECTIONS) id = slug;
+	}
+
+	if (!id || !(id in SECTIONS)) return;
+
+	e.preventDefault(); // stops the full page load
+	navigate(id);
+});
+
+// Back/forward buttons
+window.addEventListener("popstate", () => showSection(sectionFromUrl()));
+
+// Old-style #hash links still work
+window.addEventListener("hashchange", () => showSection(sectionFromUrl()));
+
+// Initial render
 if (document.readyState === "loading") {
-	window.addEventListener("DOMContentLoaded", route);
+	window.addEventListener("DOMContentLoaded", () =>
+		showSection(sectionFromUrl()),
+	);
 } else {
-	route();
+	showSection(sectionFromUrl());
 }
