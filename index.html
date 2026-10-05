@@ -3,7 +3,7 @@
 	<head>
 		<script src="detection.js"></script>
 
-		<script src="script.js"></script>
+		<script src="script.js" defer></script>
 
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -103,8 +103,8 @@
 					"Docker"
 				],
 				"sameAs": [
-					"https://github.com/krishirajsinh-p",
-					"https://www.linkedin.com/in/krishirajsinh-p",
+					"https://github.com/krishirajsinhpuwar",
+					"https://www.linkedin.com/in/krishirajsinhpuwar",
 					"https://www.instagram.com/krishirajsinhpuwar/"
 				]
 			}
@@ -134,33 +134,53 @@
 			<div class="terminal-body">
 				<div class="sidebar">
 					<div class="sidebar-header">Explorer</div>
-					<div class="nav-item" onclick="showSection('cv')">
+					<a class="nav-item" href="/cv" data-section="cv">
 						<span class="nav-icon">📃</span> CV.pdf
-					</div>
-					<div class="nav-item" onclick="showSection('profile')">
+					</a>
+					<a class="nav-item" href="/profile" data-section="profile">
 						<span class="nav-icon">👤</span> profile.json
-					</div>
-					<div class="nav-item" onclick="showSection('experience')">
+					</a>
+					<a
+						class="nav-item"
+						href="/experience"
+						data-section="experience"
+					>
 						<span class="nav-icon">💼</span> experience.log
-					</div>
-					<div class="nav-item" onclick="showSection('education')">
+					</a>
+					<a
+						class="nav-item"
+						href="/education"
+						data-section="education"
+					>
 						<span class="nav-icon">🎓</span> education.log
-					</div>
-					<div class="nav-item" onclick="showSection('skills')">
+					</a>
+					<a class="nav-item" href="/skills" data-section="skills">
 						<span class="nav-icon">🛠️</span> skills.json
-					</div>
-					<div class="nav-item" onclick="showSection('projects')">
+					</a>
+					<a
+						class="nav-item"
+						href="/projects"
+						data-section="projects"
+					>
 						<span class="nav-icon">🏗️</span> projects.list
-					</div>
-					<div class="nav-item" onclick="showSection('certificates')">
+					</a>
+					<a
+						class="nav-item"
+						href="/certificates"
+						data-section="certificates"
+					>
 						<span class="nav-icon">📜</span> certificates.list
-					</div>
-					<div class="nav-item" onclick="showSection('hackathons')">
+					</a>
+					<a
+						class="nav-item"
+						href="/hackathons"
+						data-section="hackathons"
+					>
 						<span class="nav-icon">💡</span> hackathons.list
-					</div>
-					<div class="nav-item" onclick="showSection('contact')">
+					</a>
+					<a class="nav-item" href="/contact" data-section="contact">
 						<span class="nav-icon">🌐</span> contact.info
-					</div>
+					</a>
 				</div>
 
 				<div class="content-area" id="main-output">
@@ -277,10 +297,7 @@
 								<br />
 								<li>
 									<span class="key">"Contact"</span>:
-									<a
-										href="#"
-										onclick="showSection('contact')"
-									>
+									<a href="/contact">
 										<span class="value"
 											>"see contact.info"</span
 										>
@@ -299,6 +316,14 @@
 							>$ cat experience.log | ./make-timeline.sh
 							<span class="cursor"></span>
 						</div>
+
+						<a href="https://arkadia.hn/" target="_blank">
+							<div class="exp-card">
+								<span class="date">[04/2026 - 07/2026]</span>
+								<h3>Werkstudent — Software & Curriculum Tester</h3>
+								<p>Arkadia, Heilbronn</p>
+							</div>
+						</a>
 
 						<a
 							href="https://www.ce.cit.tum.de/hndss/teaching/ws-25/computer-networking-and-it-security-inhn0012/"
@@ -320,7 +345,7 @@
 						>
 							<div class="exp-card">
 								<span class="date">[08/2024 - 09/2025]</span>
-								<h3>Werkstudent in Platform Engineering</h3>
+								<h3>Werkstudent — Platform Engineer</h3>
 								<p>Schwarz IT KG, Neckarsulm</p>
 							</div>
 						</a>
@@ -354,7 +379,7 @@
 							<div class="exp-card">
 								<span class="date">[08/2023 - 02/2024]</span>
 								<h3>
-									iLab Internship - Building my Own Internet
+									iLab Internship — Building my Own Internet
 								</h3>
 								<p>Technical University of Munich</p>
 							</div>
@@ -430,6 +455,36 @@
 								"
 							>
 								<li>
+									<span class="key">"Technical Domains"</span
+									>: [<br />
+									&nbsp;&nbsp;<span class="value"
+										>"Software Engineering"</span
+									>,<br />
+									&nbsp;&nbsp;<span class="value"
+										>"DevOps"</span
+									>,<br />
+									&nbsp;&nbsp;<span class="value"
+										>"Computer Networking"</span
+									>,<br />
+									&nbsp;&nbsp;<span class="value"
+										>"IT-Security"</span
+									>,<br />
+									&nbsp;&nbsp;<span class="value"
+										>"Data Science"</span
+									>,<br />
+									&nbsp;&nbsp;<span class="value"
+										>"Machine Learning & MLOps"</span
+									>,<br />
+									&nbsp;&nbsp;<span class="value"
+										>"Generative AI"</span
+									>,<br />
+									&nbsp;&nbsp;<span class="value"
+										>"Web Development"</span
+									><br />
+									],
+								</li>
+								<br />
+								<li>
 									<span class="key">"Languages"</span>: [<br />
 									&nbsp;&nbsp;<span class="value"
 										>"Python"</span
@@ -488,33 +543,6 @@
 									&nbsp;&nbsp;<span class="value"
 										>"Jupyter"</span
 									><br />
-									],
-								</li>
-								<br />
-								<li>
-									<span class="key">"Technical Domains"</span
-									>: [<br />
-									&nbsp;&nbsp;<span class="value"
-										>"Web Development"</span
-									>,<br />
-									&nbsp;&nbsp;<span class="value"
-										>"Software Engineering"</span
-									>,<br />
-									&nbsp;&nbsp;<span class="value"
-										>"DevOps"</span
-									>,<br />
-									&nbsp;&nbsp;<span class="value"
-										>"Computer Networking"</span
-									>,<br />
-									&nbsp;&nbsp;<span class="value"
-										>"IT-Security"</span
-									>,<br />
-									&nbsp;&nbsp;<span class="value"
-										>"Data Science"</span
-									>,<br />
-									&nbsp;&nbsp;<span class="value"
-										>"Generative AI"</span
-									><br />
 									]
 								</li>
 							</ul>
@@ -533,6 +561,20 @@
 
 						<!-- TODO: add projects -->
 						<ul style="list-style: none; padding: 0">
+							<li style="margin-bottom: 30px; margin-top: 30px">
+								‣
+								<a
+									href="https://github.com/krishirajsinhpuwar/ML-MLOps"
+									target="_blank"
+									>ML & MLOps Projects</a
+								>
+								- A collection of hands-on Machine Learning and
+								MLOps projects that follow the complete
+								lifecycle of a production ML system—from raw
+								data preprocessing to model training, experiment
+								tracking, versioning, deployment, and automated
+								retraining.
+							</li>
 							<li style="margin-bottom: 30px; margin-top: 30px">
 								‣
 								<a
@@ -562,7 +604,19 @@
 							<li style="margin-bottom: 30px; margin-top: 30px">
 								‣
 								<a
-									href="https://github.com/krishirajsinh-p/Raycasting-in-Maze"
+									href="https://github.com/krishirajsinhpuwar/Checkers-AI"
+									target="_blank"
+									>Checkers AI</a
+								>
+								- An interactive American Checkers game
+								featuring AI opponents powered by Minimax and
+								Q-Learning reinforcement learning algorithms.
+								Play against intelligent agents!
+							</li>
+							<li style="margin-bottom: 30px; margin-top: 30px">
+								‣
+								<a
+									href="https://github.com/krishirajsinhpuwar/Raycasting-in-Maze"
 									target="_blank"
 									>Raycasting in Maze</a
 								>
@@ -575,19 +629,7 @@
 							<li style="margin-bottom: 30px; margin-top: 30px">
 								‣
 								<a
-									href="https://github.com/krishirajsinh-p/Checkers-AI"
-									target="_blank"
-									>Checkers AI</a
-								>
-								- An interactive American Checkers game
-								featuring AI opponents powered by Minimax and
-								Q-Learning reinforcement learning algorithms.
-								Play against intelligent agents!
-							</li>
-							<li style="margin-bottom: 30px; margin-top: 30px">
-								‣
-								<a
-									href="https://github.com/krishirajsinh-p/Fylio"
+									href="https://github.com/krishirajsinhpuwar/Fylio"
 									target="_blank"
 									>Fylio</a
 								>
@@ -734,25 +776,25 @@
 							<li style="margin-bottom: 15px">
 								‣
 								<a
-									href="https://www.linkedin.com/in/krishirajsinh-p"
+									href="https://www.linkedin.com/in/krishirajsinhpuwar"
 									target="_blank"
 									><img
 										src="https://krishirajsinh-puwar.42web.io/img/linkedin.svg"
 										alt="LinkedIn"
 										style="pointer-events: none"
-									/>: @krishirajsinh-p</a
+									/>: @krishirajsinhpuwar</a
 								>
 							</li>
 							<li style="margin-bottom: 15px">
 								‣
 								<a
-									href="https://github.com/krishirajsinh-p"
+									href="https://github.com/krishirajsinhpuwar"
 									target="_blank"
 									><img
 										src="https://krishirajsinh-puwar.42web.io/img/github.svg"
 										alt="Github"
 										style="pointer-events: none"
-									/>: @krishirajsinh-p</a
+									/>: @krishirajsinhpuwar</a
 								>
 							</li>
 							<li style="margin-bottom: 15px">
@@ -769,13 +811,12 @@
 							</li>
 							<li style="margin-bottom: 15px">
 								‣
-								<a
-									href="mailto:krishirajsinh1505puwar@gmail.com"
+								<a href="mailto:krishirajsinh.puwar@gmail.com"
 									><img
 										src="https://krishirajsinh-puwar.42web.io/img/gmail.svg"
 										alt="Email"
 										style="pointer-events: none"
-									/>: krishirajsinh1505puwar@gmail.com</a
+									/>: krishirajsinh.puwar@gmail.com</a
 								>
 							</li>
 						</ul>
@@ -792,8 +833,8 @@
 
 						<iframe
 							class="hackathon-iframe"
-							src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7403125349741473792"
-							height="1000"
+							src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7470057524252127232?collapsed=1"
+							height="500"
 							width="48%"
 							frameborder="0"
 							allowfullscreen=""
@@ -801,8 +842,8 @@
 						></iframe>
 						<iframe
 							class="hackathon-iframe"
-							src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7178263312009162753"
-							height="1000"
+							src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7445889348719296512?collapsed=1"
+							height="500"
 							width="48%"
 							frameborder="0"
 							allowfullscreen=""
@@ -810,8 +851,26 @@
 						></iframe>
 						<iframe
 							class="hackathon-iframe"
-							src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7264531027262427138"
-							height="1000"
+							src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7403125349741473792?collapsed=1"
+							height="500"
+							width="48%"
+							frameborder="0"
+							allowfullscreen=""
+							title="Embedded post"
+						></iframe>
+						<iframe
+							class="hackathon-iframe"
+							src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7178263312009162753?collapsed=1"
+							height="500"
+							width="48%"
+							frameborder="0"
+							allowfullscreen=""
+							title="Embedded post"
+						></iframe>
+						<iframe
+							class="hackathon-iframe"
+							src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7264531027262427138?collapsed=1"
+							height="500"
 							width="48%"
 							frameborder="0"
 							allowfullscreen=""
