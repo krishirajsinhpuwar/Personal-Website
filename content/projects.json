@@ -1,0 +1,44 @@
+[
+  {
+    "title": "ML & MLOps Projects",
+    "category": "Machine learning",
+    "description": "Hands-on projects covering the machine learning lifecycle, from data preprocessing and model training to experiment tracking, versioning, deployment, and automated retraining.",
+    "url": "https://github.com/krishirajsinhpuwar/ML-MLOps",
+    "linkLabel": "View repository"
+  },
+  {
+    "title": "WebBoost",
+    "category": "Web tool",
+    "description": "A blog analysis tool that scores content, user experience, and search optimization, then suggests what to improve.",
+    "url": "https://web-boost.vercel.app/",
+    "linkLabel": "Open project"
+  },
+  {
+    "title": "MediaSleuth360",
+    "category": "Applied AI",
+    "description": "A chat interface for navigating media. Ask about a topic and get the timestamps where it appears.",
+    "url": "https://mediasleuth360.infinityfreeapp.com/",
+    "linkLabel": "Open project"
+  },
+  {
+    "title": "Checkers AI",
+    "category": "Game AI",
+    "description": "An interactive American Checkers game with opponents powered by Minimax and Q-learning.",
+    "url": "https://github.com/krishirajsinhpuwar/Checkers-AI",
+    "linkLabel": "View repository"
+  },
+  {
+    "title": "Raycasting in Maze",
+    "category": "Graphics",
+    "description": "A C++ and SDL2 maze explorer that uses classic raycasting to render randomly generated mazes in 3D.",
+    "url": "https://github.com/krishirajsinhpuwar/Raycasting-in-Maze",
+    "linkLabel": "View repository"
+  },
+  {
+    "title": "Fylio",
+    "category": "Browser extension",
+    "description": "A Chromium extension that gives local file listings a Finder-style interface.",
+    "url": "https://github.com/krishirajsinhpuwar/Fylio",
+    "linkLabel": "View repository"
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "title": "Technical domains",
+    "items": [
+      "Software Engineering",
+      "DevOps",
+      "Computer Networking",
+      "IT Security",
+      "Data Science",
+      "Machine Learning & MLOps",
+      "Generative AI",
+      "Web Development"
+    ]
+  },
+  {
+    "title": "Languages & web technologies",
+    "items": [
+      "Python",
+      "Go",
+      "C",
+      "C++",
+      "C#",
+      "Java",
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "Bash"
+    ]
+  },
+  {
+    "title": "Tools & platforms",
+    "items": [
+      "Git/GitHub",
+      "Linux",
+      "Docker",
+      "Kubernetes",
+      "Kustomize",
+      "Terraform",
+      "Azure",
+      "VS Code",
+      "IntelliJ IDEA",
+      "GoLand",
+      "Jupyter"
+    ]
+  }
+]
