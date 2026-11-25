@@ -1,5 +1,11 @@
 [
   {
+    "title": "JIVS Hackathon 2026",
+    "date": "2026-08",
+    "description": "Built an SAP object explorer and data time machine for a decommissioned system.",
+    "url": "https://github.com/krishirajsinhpuwar/seeburg-aug-26-alfa-team"
+  },
+  {
     "title": "TECHOn Hackathon 2026",
     "date": "2026-05",
     "description": "Built a GDPR-focused prototype for locating personally identifiable information across files in one day.",
