@@ -4,7 +4,6 @@ import { createServer } from 'node:http';
 import { extname, join, relative, resolve } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
-import { isSectionPath } from '../src/pages.mjs';
 
 const dist = fileURLToPath(new URL('../dist/', import.meta.url));
 const port = Number(process.argv[2] ?? 8000);
@@ -21,6 +20,7 @@ const mediaTypes = {
   '.ttf': 'font/ttf',
   '.txt': 'text/plain; charset=utf-8',
   '.woff2': 'font/woff2',
+  '.xml': 'application/xml; charset=utf-8',
 };
 
 await stat(index).catch(() => {
@@ -31,18 +31,22 @@ async function findFile(url) {
   const pathname = decodeURIComponent(url.pathname);
   const file = resolve(dist, `.${pathname}`);
   if (url.origin !== origin || relative(dist, file).startsWith('..') || pathname.split('/').some((part) => part.startsWith('.'))) return null;
+  if (pathname === '/profile' || pathname === '/profile/') return { redirect: `/${url.search}#profile` };
 
   const entry = await stat(file).catch((error) => {
     if (error.code === 'ENOENT' || error.code === 'ENOTDIR') return null;
     throw error;
   });
-  if (!entry) return isSectionPath(pathname) ? { file: index } : null;
+  if (!entry) return null;
   if (entry.isDirectory()) {
     if (file === resolve(dist)) return { file: index };
     const directoryIndex = join(file, 'index.html');
-    return (await stat(directoryIndex).catch(() => null))?.isFile()
-      ? { file: directoryIndex, redirect: !url.pathname.endsWith('/') }
-      : null;
+    if (!(await stat(directoryIndex).catch(() => null))?.isFile()) return null;
+    return url.pathname.endsWith('/') ? { file: directoryIndex } : { redirect: `${url.pathname}/${url.search}` };
+  }
+  if (entry.isFile() && /^\/(?:[^/]+\/)?index\.html$/.test(pathname)) {
+    const directory = url.pathname.slice(0, url.pathname.lastIndexOf('/') + 1);
+    return { redirect: `${directory}${url.search}` };
   }
   return entry.isFile() ? { file } : null;
 }
@@ -68,7 +72,7 @@ createServer(async (request, response) => {
     const url = new URL(request.url, origin);
     const match = await findFile(url);
     if (match?.redirect) {
-      response.writeHead(301, { Location: `${url.pathname}/${url.search}` }).end();
+      response.writeHead(301, { Location: match.redirect }).end();
       return;
     }
 

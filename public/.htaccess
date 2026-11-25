@@ -1,8 +1,15 @@
 
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(cv|profile|experience|education|skills|projects|certificates|hackathons|contact)/?$ /index.html [L]
+
+# Redirect old profile URLs to the introduction on the homepage.
+RewriteCond %{QUERY_STRING} ^(.+)$
+RewriteRule ^profile/?$ /?%1#profile [R=301,L,NE]
+RewriteRule ^profile/?$ /#profile [R=301,L,NE]
+
+# Redirect explicit index files without affecting Apache's directory index lookup.
+RewriteCond %{THE_REQUEST} \s/+[^?\s]*index\.html[?\s]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^((?:[^/]+/)?)index\.html$ /$1 [R=301,L]
 
 # BEGIN InfinityFree Managed Code
 # DO NOT EDIT - MANAGED BY THE MEMBERS AREA

@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
-import { cp, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
-import { extname, join } from 'node:path';
+import { cp, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderErrorPages } from '../src/error-pages.mjs';
-import { isSectionPath, renderSite, sections } from '../src/pages.mjs';
+import { renderPages, renderSitemap, sections, socialCardPath } from '../src/pages.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(root, 'dist');
@@ -37,7 +37,8 @@ data.assets = Object.fromEntries(await Promise.all(['site.css', 'router.js'].map
   return [filename, `/assets/${filename}?v=${hash.slice(0, 12)}`];
 })));
 
-const index = renderSite(data);
+const pages = renderPages(data);
+const sitemapUrl = new URL('/sitemap.xml', data.profile.siteUrl);
 
 async function checkUploadFiles(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -56,16 +57,25 @@ async function checkUploadFiles(directory) {
 const output = await mkdtemp(join(root, '.dist-build-'));
 try {
   await cp(publicRoot, output, { recursive: true });
-  await writeFile(join(output, 'index.html'), index);
+  for (const { path, markup } of pages) {
+    const filename = join(output, path, 'index.html');
+    await mkdir(dirname(filename), { recursive: true });
+    await writeFile(filename, markup);
+  }
   for (const [filename, html] of renderErrorPages()) {
     await writeFile(join(output, 'err', filename), html);
   }
+  await writeFile(join(output, 'sitemap.xml'), renderSitemap(pages));
+  await writeFile(join(output, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${sitemapUrl.href}\n`);
 
-  for (const [, pathname] of index.matchAll(/\b(?:href|src)="(\/(?!\/)[^"?#]*)/g)) {
-    if (isSectionPath(pathname)) continue;
-    const target = pathname.endsWith('/') ? `${pathname}index.html` : pathname;
+  const localPaths = new Set([socialCardPath]);
+  for (const { markup } of pages) {
+    for (const [, pathname] of markup.matchAll(/\b(?:href|src)="(\/(?!\/)[^"?#]*)/g)) localPaths.add(pathname);
+  }
+  for (const pathname of localPaths) {
+    const target = pathname.endsWith('/') ? join(pathname, 'index.html') : pathname;
     const file = await stat(join(output, target)).catch(() => null);
-    if (!file?.isFile()) throw new Error(`index.html links to a missing file: ${pathname}`);
+    if (!file?.isFile()) throw new Error(`The site links to a missing file: ${pathname}`);
   }
 
   await checkUploadFiles(output);

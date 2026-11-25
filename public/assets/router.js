@@ -1,6 +1,7 @@
 (() => {
   const page = document.querySelector('main[data-route]');
-  const views = new Map(Array.from(page.children, (view) => [view.dataset.view, view]));
+  const availableViews = page.querySelector('template[data-views]').content.children;
+  const views = new Map([page.firstElementChild, ...availableViews].map((view) => [view.dataset.view, view]));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobileLayout = window.matchMedia('(max-width: 47rem)');
   const scrollPositions = new Map();
@@ -189,6 +190,7 @@
     const previous = page.dataset.route;
     if (path === previous) {
       if (path === '/' && location.hash === '#profile') document.getElementById('profile').scrollIntoView();
+      if (path !== '/' && initial) view.querySelector('h1').focus({ preventScroll: true });
       return;
     }
     cancelTransition?.();
@@ -207,6 +209,7 @@
       if (committed) return;
       committed = true;
       previousView.hidden = true;
+      if (!view.isConnected) page.append(view);
       view.hidden = false;
       page.dataset.route = path;
       document.title = view.dataset.title;

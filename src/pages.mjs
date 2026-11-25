@@ -1,40 +1,37 @@
 const personalFiles = {
   experience: {
     title: 'Experience', tone: 'lime', tabPosition: 0,
-    description: 'My work in platform engineering, software testing, computer networking education, and startups.',
+    description: 'Krishirajsinh Puwar’s experience in platform engineering at Schwarz IT, software testing at Arkadia, and computer networking and IT security tutoring at TUM.',
   },
   education: {
     title: 'Education', tone: 'blue', tabPosition: 0.2,
-    description: 'Where I studied information engineering and computer science.',
+    description: 'Krishirajsinh Puwar’s education in Information Engineering at the Technical University of Munich and computer science at 42 Heilbronn and Ahmedabad University.',
   },
   projects: {
     title: 'Projects', tone: 'orange', tabPosition: 0.4,
-    description: 'Software I’ve built, from machine learning workflows to web tools, games, and a browser extension.',
+    description: 'Explore software and applied AI projects by Krishirajsinh Puwar, including machine learning and MLOps workflows, WebBoost, MediaSleuth360, and Fylio.',
   },
   skills: {
     title: 'Skills', tone: 'cyan', tabPosition: 0.6,
-    description: 'The areas, languages, and tools I’ve worked with across coursework and projects.',
+    description: 'Programming languages, software engineering tools, machine learning skills, and systems knowledge from Krishirajsinh Puwar’s coursework and projects.',
   },
   certificates: {
     title: 'Certificates', tone: 'red', tabPosition: 0.8,
-    description: 'Course credentials and programs in AI, cloud computing, security, and data science.',
+    description: 'Browse Krishirajsinh Puwar’s course credentials and certificates in AI, cloud computing, security, and data science.',
   },
   hackathons: {
     title: 'Hackathons', tone: 'yellow', tabPosition: 1,
-    description: 'Projects and stories from hackathons in Heilbronn and St. Gallen.',
+    description: 'See Krishirajsinh Puwar’s hackathon projects from JIVS, TECHOn, START Hack, and other events in Heilbronn and St. Gallen.',
   },
 };
 
 export const sections = {
   ...personalFiles,
-  cv: { title: 'Curriculum Vitae', tone: 'lavender', tabPosition: 0, description: 'My résumé in PDF format, with my experience, education, skills, and activities.' },
-  contact: { title: 'Contact', description: 'Get in touch by email or find me on LinkedIn, GitHub, and Instagram.' },
+  cv: { title: 'Curriculum Vitae', tone: 'lavender', tabPosition: 0, description: 'Read or download Krishirajsinh Puwar’s CV, covering his Information Engineering education, work experience, technical skills, and activities.' },
+  contact: { title: 'Contact', description: 'Contact Krishirajsinh Puwar by email or find his profiles on LinkedIn, GitHub, and Instagram.' },
 };
 
-export function isSectionPath(pathname) {
-  const slug = /^\/([^/]+)\/?$/.exec(pathname)?.[1];
-  return slug === 'profile' || Object.hasOwn(sections, slug);
-}
+export const socialCardPath = '/assets/social-card.png';
 
 const monthYear = new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 const htmlEntities = {
@@ -60,36 +57,73 @@ function dateLabel(value) {
   return `<time datetime="${value}">${monthYear.format(new Date(`${value}-01T00:00:00Z`))}</time>`;
 }
 
-function pageDetails(profile, { slug, title, description }) {
+function pageDetails(profile, { slug, title, description, body }) {
   const path = slug ? `/${slug}/` : '/';
   return {
     path,
-    pageTitle: slug ? `${title} | ${profile.name}` : profile.name,
+    pageTitle: slug ? `${title} | ${profile.name}` : `${profile.name} | ${profile.headline.replace(/\.$/, '')}`,
     canonical: new URL(path, profile.siteUrl).href,
     description,
+    body,
   };
 }
 
-export function renderSite(data) {
-  const { profile, contact } = data;
-  const home = homeView(data);
-  const { pageTitle, canonical, description } = pageDetails(profile, home);
-  const person = {
+function renderProfileSchema(profile, contact, url) {
+  const siteId = `${url}#website`;
+  const graph = {
     '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: profile.name,
-    url: canonical,
-    description,
-    sameAs: contact.filter((entry) => entry.url.startsWith('https:')).map((entry) => entry.url),
+    '@graph': [
+      { '@type': 'WebSite', '@id': siteId, url, name: profile.name },
+      {
+        '@type': 'ProfilePage',
+        '@id': `${url}#profile-page`,
+        url,
+        isPartOf: { '@id': siteId },
+        mainEntity: {
+          '@type': 'Person',
+          '@id': `${url}#person`,
+          url,
+          name: profile.name,
+          description: profile.intro,
+          sameAs: contact.filter((entry) => entry.url.startsWith('https:')).map((entry) => entry.url),
+        },
+      },
+    ],
   };
-  const views = [home, ...Object.keys(sections).map((slug) => (
-    slug === 'contact' ? contactPage(data) : fileView(data, slug)
-  ))];
-  const panels = views.map((view) => {
-    const { path, pageTitle, canonical, description } = pageDetails(profile, view);
-    return `<div data-view="${path}" data-title="${html(pageTitle)}" data-canonical="${linkUrl(canonical)}" data-description="${html(description)}"${view.slug ? ' hidden' : ''}>${view.body}</div>`;
-  }).join('\n    ');
+  return JSON.stringify(graph).replaceAll('<', '\\u003c');
+}
 
+function renderPanel({ path, pageTitle, canonical, description, body }, hidden = false) {
+  return `<div data-view="${path}" data-title="${html(pageTitle)}" data-canonical="${linkUrl(canonical)}" data-description="${html(description)}"${hidden ? ' hidden' : ''}>${body}</div>`;
+}
+
+export function renderPages(data) {
+  const views = [
+    homeView(data),
+    ...Object.keys(sections).map((slug) => slug === 'contact' ? contactPage(data) : fileView(data, slug)),
+  ].map((view) => pageDetails(data.profile, view));
+  const schema = renderProfileSchema(data.profile, data.contact, views[0].canonical);
+
+  return views.map((view) => ({
+    path: view.path,
+    canonical: view.canonical,
+    markup: renderDocument(data, views, view, view.path === '/' ? schema : ''),
+  }));
+}
+
+export function renderSitemap(pages) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pages.map(({ canonical }) => `  <url><loc>${html(canonical)}</loc></url>`).join('\n')}
+</urlset>
+`;
+}
+
+function renderDocument({ profile, assets }, views, active, schema) {
+  const { path, pageTitle, canonical, description } = active;
+  const socialCard = linkUrl(new URL(socialCardPath, profile.siteUrl).href);
+  const socialCardAlt = html(`${profile.name} — ${profile.headline}`);
+  const inactivePanels = views.filter((view) => view !== active).map((view) => renderPanel(view, true)).join('\n      ');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -100,17 +134,25 @@ export function renderSite(data) {
   <title>${html(pageTitle)}</title>
   <link rel="canonical" href="${linkUrl(canonical)}">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="${html(profile.name)}">
   <meta property="og:url" content="${linkUrl(canonical)}">
   <meta property="og:title" content="${html(pageTitle)}">
   <meta property="og:description" content="${html(description)}">
+  <meta property="og:image" content="${socialCard}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${socialCardAlt}">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="${data.assets['site.css']}">
-  <script src="${data.assets['router.js']}" defer></script>
-  <script type="application/ld+json">${JSON.stringify(person).replaceAll('<', '\\u003c')}</script>
+  <link rel="stylesheet" href="${assets['site.css']}">
+  <script src="${assets['router.js']}" defer></script>${schema ? `\n  <script type="application/ld+json">${schema}</script>` : ''}
 </head>
 <body>
-  <main data-route="/">
-    ${panels}
+  <main data-route="${path}">
+    ${renderPanel(active)}
+    <template data-views>
+      ${inactivePanels}
+    </template>
   </main>
 </body>
 </html>
@@ -123,7 +165,7 @@ function homeView({ profile }) {
   const displayName = surnameStart === -1 ? `<span>${name}</span>` : `<span>${name.slice(0, surnameStart)}</span> <span>${name.slice(surnameStart + 1)}</span>`;
 
   return {
-    slug: '', description: profile.intro,
+    slug: '', description: profile.description ?? profile.intro,
     body: `
     <div class="wrap home">
       <section class="intro" aria-labelledby="name">
