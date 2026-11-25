@@ -2,6 +2,7 @@
   const page = document.querySelector('main[data-route]');
   const views = new Map(Array.from(page.children, (view) => [view.dataset.view, view]));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobileLayout = window.matchMedia('(max-width: 47rem)');
   const scrollPositions = new Map();
   const canonical = document.querySelector('link[rel="canonical"]');
   const description = document.querySelector('meta[name="description"]');
@@ -38,22 +39,27 @@
     const body = sheet.querySelector('.sheet-body');
     const tab = sheet.querySelector('.file-tab');
     const tools = view.querySelector('.sheet-tools');
-    const style = getComputedStyle(sheet);
     return {
       body: visualClone(body), bodyBounds: body.getBoundingClientRect(),
       tab: visualClone(tab), tabBounds: tab.getBoundingClientRect(),
       tools: visualClone(tools), toolsBounds: tools.getBoundingClientRect(),
       scrollTop: body.querySelector('.sheet-content').scrollTop,
-      color: style.getPropertyValue('--folder'), ink: style.getPropertyValue('--folder-ink') || 'var(--ink)',
     };
   }
 
-  function freezeHome(view, stage) {
-    const home = view.querySelector('.home');
-    const clone = visualClone(home);
-    clone.classList.add('file-motion-home');
-    place(clone, home.getBoundingClientRect());
-    clone.style.margin = '0';
+  function createNavigationStage() {
+    const stage = document.createElement('div');
+    stage.className = 'navigation-stage';
+    stage.setAttribute('aria-hidden', 'true');
+    stage.inert = true;
+    document.body.append(stage);
+    return stage;
+  }
+
+  function freezeLayout(layout, stage) {
+    const clone = visualClone(layout);
+    clone.classList.add('navigation-layout');
+    place(clone, layout.getBoundingClientRect());
     stage.append(clone);
     return clone;
   }
@@ -80,39 +86,24 @@
   }
 
   function animateFile(previousView, view, file, closing, commit, focus) {
-    const stage = document.createElement('div');
-    stage.className = 'navigation-stage';
-    stage.setAttribute('aria-hidden', 'true');
-    stage.inert = true;
-    document.body.append(stage);
+    const stage = createNavigationStage();
 
     try {
       // Freeze the stack before changing scroll position. Only transforms animate;
       // the paper keeps its final layout and the tab never stretches its text.
       let expanded = closing ? captureSheet(previousView) : null;
-      let home = closing ? null : freezeHome(previousView, stage);
+      let home = closing ? null : freezeLayout(previousView.firstElementChild, stage);
       commit();
-      if (closing) home = freezeHome(view, stage);
+      if (closing) home = freezeLayout(view.firstElementChild, stage);
       else expanded = captureSheet(view);
 
-      stage.style.setProperty('--folder', expanded.color);
-      stage.style.setProperty('--folder-ink', expanded.ink);
       const selected = home.querySelector(`[data-file="${file}"]`).closest('.folder-layer');
       const folder = selected.querySelector('.folder');
-      const cover = folder.querySelector('.folder-cover');
-      const closedBody = cover.getBoundingClientRect();
+      const closedBody = folder.querySelector('.folder-cover').getBoundingClientRect();
       const closedTab = folder.querySelector('.file-tab').getBoundingClientRect();
-      const coverStyle = getComputedStyle(cover);
-      const caption = visualClone(cover);
-      caption.classList.add('file-motion-caption');
-      place(caption, closedBody);
-      caption.style.color = getComputedStyle(folder).color;
-      caption.style.justifyContent = coverStyle.justifyContent;
-      caption.style.flexWrap = coverStyle.flexWrap;
-      if (getComputedStyle(cover.querySelector('.folder-summary')).position === 'absolute') {
-        caption.querySelector('.folder-summary').classList.add('sr-only');
-      }
-      folder.style.opacity = '0';
+      folder.querySelectorAll('.folder-cover, .folder-tab').forEach((element) => {
+        element.style.visibility = 'hidden';
+      });
 
       expanded.body.classList.add('file-motion-body');
       expanded.tab.classList.add('file-motion-tab');
@@ -120,13 +111,14 @@
       place(expanded.body, expanded.bodyBounds);
       place(expanded.tab, expanded.tabBounds);
       place(expanded.tools, expanded.toolsBounds);
-      stage.append(expanded.body, caption, expanded.tab, expanded.tools);
+      // Keep the moving file in its stack position, above the folders behind it.
+      selected.append(expanded.body, expanded.tab);
+      stage.append(expanded.tools);
       const paper = expanded.body.querySelector('.sheet-content');
       paper.scrollTop = expanded.scrollTop;
 
       const bodyTransform = `translate(${closedBody.left - expanded.bodyBounds.left}px, ${closedBody.top - expanded.bodyBounds.top}px) scale(${closedBody.width / expanded.bodyBounds.width}, ${closedBody.height / expanded.bodyBounds.height})`;
       const tabTransform = `translate(${closedTab.left - expanded.tabBounds.left}px, ${closedTab.top - expanded.tabBounds.top}px)`;
-      const captionTransform = `translate(${expanded.bodyBounds.left - closedBody.left}px, ${expanded.bodyBounds.top - closedBody.top}px)`;
       const duration = closing ? 640 : 720;
       const easing = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
       const animations = [];
@@ -138,24 +130,71 @@
       animate(expanded.tab, closing ? [{ transform: 'none' }, { transform: tabTransform }] : [{ transform: tabTransform }, { transform: 'none' }]);
       animate(paper, closing ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 1 }], { duration: closing ? 230 : 360, delay: closing ? 0 : 220 });
       animate(expanded.tools, closing ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: closing ? 0 : 420 });
-      animate(caption, closing ? [
-        { transform: captionTransform, opacity: 0 },
-        { transform: 'translate(0, 0)', opacity: 1 },
-      ] : [
-        { transform: 'translate(0, 0)', opacity: 1 },
-        { transform: captionTransform, opacity: 0, offset: 0.3 },
-        { transform: captionTransform, opacity: 0 },
-      ], closing ? { duration: 200, delay: 420 } : {});
-
-      home.querySelectorAll('.folder-layer').forEach((layer, index) => {
+      const layers = Array.from(home.querySelectorAll('.folder-layer'));
+      const selectedIndex = layers.indexOf(selected);
+      layers.forEach((layer, index) => {
         if (layer === selected) return;
         const drop = window.innerHeight - Math.min(layer.getBoundingClientRect().top, window.innerHeight) + 120;
         const up = { transform: 'translateY(0)', opacity: 1 };
         const down = { transform: `translateY(${drop}px)`, opacity: 0 };
-        animate(layer, closing ? [down, up] : [up, down], { duration: 420, delay: closing ? 120 + (5 - index) * 18 : index * 18 });
+        const stagger = (layers.length - 1 - index) * 18;
+        const inFront = index > selectedIndex;
+        animate(layer, closing ? [down, up] : [up, down], {
+          duration: closing && inFront ? 320 : 420,
+          delay: closing ? (inFront ? 250 : 120) + stagger : index * 18,
+        });
       });
       animate(home.querySelector('.intro'), closing ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0 }], { duration: 220, delay: closing ? 180 : 0 });
       playNavigation(animations, stage, focus);
+    } catch (error) {
+      stage.remove();
+      throw error;
+    }
+  }
+
+  function animateButtonView(previousView, view, button, closing, commit, focus) {
+    const stage = createNavigationStage();
+
+    try {
+      const scrollArea = '.sheet-content, .business-card-layout';
+      const outgoing = freezeLayout(previousView.firstElementChild, stage);
+      const outgoingScroll = closing ? previousView.querySelector(scrollArea).scrollTop : 0;
+      const openingBounds = closing ? null : button.getBoundingClientRect();
+      commit();
+      const incoming = freezeLayout(view.firstElementChild, stage);
+      const detail = closing ? outgoing : incoming;
+      const home = closing ? incoming : outgoing;
+      stage.append(detail);
+      detail.querySelector(scrollArea).scrollTop = closing ? outgoingScroll : view.querySelector(scrollArea).scrollTop;
+
+      const panel = detail.querySelector('article');
+      const controls = detail.querySelector('.sheet-tools');
+      const origin = openingBounds ?? button.getBoundingClientRect();
+      const zoomFromButton = !mobileLayout.matches && origin.bottom > 0 && origin.top < window.innerHeight;
+      let collapsed = 'translateY(1.25rem) scale(0.97)';
+
+      if (zoomFromButton) {
+        const bounds = panel.getBoundingClientRect();
+        const scale = Math.min(origin.width / bounds.width, origin.height / bounds.height);
+        const x = origin.left + origin.width / 2 - (bounds.left + bounds.width / 2);
+        const y = origin.top + origin.height / 2 - (bounds.top + bounds.height / 2);
+        collapsed = `translate(${x}px, ${y}px) scale(${scale})`;
+      }
+
+      const duration = zoomFromButton ? 440 : 280;
+      const easing = closing ? 'cubic-bezier(0.55, 0.05, 0.8, 0.45)' : 'cubic-bezier(0.2, 0.72, 0.25, 1)';
+      const animate = (element, frames, options = {}) =>
+        element.animate(closing ? frames.reverse() : frames, { duration, easing, fill: 'both', ...options });
+
+      playNavigation([
+        animate(home, [{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out' }),
+        animate(panel, [
+          { transform: collapsed, opacity: 0 },
+          { opacity: 1, offset: 0.45 },
+          { transform: 'none', opacity: 1 },
+        ]),
+        animate(controls, [{ opacity: 0 }, { opacity: 1 }], { duration: 160, delay: closing ? 0 : duration - 180 }),
+      ], stage, focus);
     } catch (error) {
       stage.remove();
       throw error;
@@ -179,8 +218,8 @@
     const goingHome = path === '/';
     const hasHomePosition = scrollPositions.has('/');
     const file = (goingHome ? previous : path).slice(1, -1);
-    const homeFolder = views.get('/').querySelector(`.folder[id="${file}"]`);
-    const movingBetweenHomeAndFile = homeFolder && (previous === '/' || goingHome);
+    const homeLink = views.get('/').querySelector(`a[id="${file}"]`);
+    const movingBetweenHomeAndSection = homeLink && (previous === '/' || goingHome);
     const motion = !initial && !reduceMotion.matches && typeof view.animate === 'function';
     let committed = false;
 
@@ -202,16 +241,20 @@
 
     function focus() {
       if (visit !== navigation) return;
-      const returningLink = goingHome && hasHomePosition ? document.getElementById(file) : null;
+      const returningLink = goingHome && hasHomePosition ? homeLink : null;
       (returningLink ?? view.querySelector('h1')).focus({ preventScroll: true });
     }
 
-    if (motion && movingBetweenHomeAndFile) {
+    if (motion && movingBetweenHomeAndSection) {
       try {
-        animateFile(previousView, view, file, goingHome, commit, focus);
+        if (homeLink.classList.contains('folder')) {
+          animateFile(previousView, view, file, goingHome, commit, focus);
+        } else {
+          animateButtonView(previousView, view, homeLink, goingHome, commit, focus);
+        }
         return;
       } catch (error) {
-        console.warn('File animation unavailable; showing the page directly.', error);
+        console.warn('Navigation animation unavailable; using the default transition.', error);
       }
     }
 

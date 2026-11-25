@@ -40,7 +40,7 @@ html {
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100svh;
   margin: 0;
   background: var(--night);
   color: var(--light);
@@ -257,6 +257,7 @@ h1:focus {
 
 .folder-layer {
   position: relative;
+  z-index: 0;
   pointer-events: none;
 }
 
@@ -324,6 +325,10 @@ h1:focus {
   transform: scaleX(-1);
 }
 
+.sheet-tab {
+  text-decoration: none;
+}
+
 .file-title {
   display: block;
   font-family: var(--display);
@@ -335,27 +340,12 @@ h1:focus {
 
 .folder-cover {
   position: relative;
-  display: flex;
+  display: block;
   min-height: clamp(8.5rem, 14vw, 11rem);
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem 1.5rem;
-  padding: 0.8rem clamp(1rem, 3vw, 2.25rem) 1.15rem;
   border-radius: 6px;
   background: var(--folder);
   box-shadow: 0 -3px 8px #00000018;
   pointer-events: auto;
-}
-
-.folder-summary {
-  font-size: 0.9375rem;
-  font-weight: 570;
-}
-
-.folder-count {
-  align-self: flex-start;
-  flex-shrink: 0;
-  padding-block-start: 0.12rem;
 }
 
 .folder-layer:last-child .folder-cover {
@@ -364,19 +354,13 @@ h1:focus {
   border-end-end-radius: 0;
 }
 
-.folder-layer:last-child .folder-cover::after {
-  position: absolute;
-  inset: auto clamp(1rem, 3vw, 2.25rem) 1.05rem;
-  border-block-start: 1px solid currentColor;
-  opacity: 0.25;
-  content: "";
-}
-
-.folder:focus-visible {
+.folder:focus-visible,
+.sheet-tab:focus-visible {
   outline: none;
 }
 
-.folder:focus-visible .file-title {
+.folder:focus-visible .file-title,
+.sheet-tab:focus-visible .file-title {
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
@@ -386,7 +370,8 @@ h1:focus {
 }
 
 @media (hover: hover) {
-  .folder:hover .file-title {
+  .folder:hover .file-title,
+  .sheet-tab:hover .file-title {
     text-decoration: underline;
     text-underline-offset: 0.12em;
   }
@@ -408,7 +393,7 @@ h1:focus {
 .sheet-body {
   display: flex;
   aspect-ratio: 210 / 297;
-  min-height: 0;
+  min-height: min-content;
   padding: clamp(0.48rem, 1.6vw, 0.875rem);
   border-radius: 6px;
   background: var(--folder);
@@ -458,6 +443,7 @@ h1:focus {
 }
 
 .sheet-content {
+  position: relative;
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -466,9 +452,6 @@ h1:focus {
   background: var(--sheet);
   color: var(--ink);
   color-scheme: light;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  scrollbar-gutter: stable;
 }
 
 .sheet-content h2 {
@@ -510,7 +493,7 @@ h1:focus {
 
 .timeline-entry {
   display: grid;
-  grid-template-columns: minmax(10rem, 25%) minmax(0, 1fr);
+  grid-template-columns: minmax(11.5rem, 28%) minmax(0, 1fr);
   gap: 0.4rem 1.5rem;
   padding-block: 1.15rem;
   border-block-end: 1px solid var(--soft-line);
@@ -527,6 +510,7 @@ h1:focus {
 
 .timeline-date {
   padding-block-start: 0.2rem;
+  white-space: nowrap;
 }
 
 .timeline-entry h2 {
@@ -593,7 +577,6 @@ h1:focus {
 
 .cv-content {
   padding: 0;
-  scrollbar-gutter: auto;
   background: #fff;
 }
 
@@ -609,6 +592,10 @@ h1:focus {
   display: block;
   width: 100%;
   height: auto;
+}
+
+.cv-page .sr-only {
+  inset-block-start: 0;
 }
 
 .contact-wrap {
@@ -710,15 +697,13 @@ body.is-navigating {
   contain: layout paint style;
 }
 
-.file-motion-home {
-  --folder-ink: var(--ink);
+.navigation-layout {
   position: fixed;
-  z-index: 2;
+  margin: 0;
 }
 
 .file-motion-body,
 .file-motion-tab,
-.file-motion-caption,
 .file-motion-tools {
   position: fixed;
   margin: 0;
@@ -726,74 +711,19 @@ body.is-navigating {
 }
 
 .file-motion-body {
-  z-index: 1;
+  min-height: 0;
   transform-origin: top left;
   will-change: transform;
 }
 
 .file-motion-tab {
-  z-index: 3;
   max-width: none;
   transform: none;
   will-change: transform;
 }
 
-.file-motion-caption {
-  z-index: 1;
-  min-height: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
 .file-motion-tools {
   z-index: 3;
-}
-
-.file-motion-home .folder-layer {
-  will-change: transform, opacity;
-}
-
-@media (max-width: 47rem) {
-  .business-card-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.5rem;
-  }
-
-  .business-card-role {
-    max-width: none;
-    margin-block-start: 0.375rem;
-    line-height: 1.3;
-  }
-
-  .business-card-contacts {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.375rem 0.5rem;
-    padding: 0.5rem 0 0;
-    border-inline-start: 0;
-    border-block-start: 1px solid var(--soft-line);
-    line-height: 1.3;
-  }
-
-  .business-card-contacts a:first-child {
-    grid-column: 1 / -1;
-  }
-
-  .business-card-contacts a:first-child .type-label,
-  .business-card-contacts a:not(:first-child) .contact-handle {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-
-  .business-card-contacts a:not(:first-child) .type-label {
-    color: var(--ink);
-    font: 700 0.875rem/1.25 system-ui, sans-serif;
-    letter-spacing: 0;
-    text-decoration: underline;
-    text-transform: none;
-  }
 }
 
 @media (max-width: 47rem) {
@@ -806,18 +736,94 @@ body.is-navigating {
     border: 0;
   }
 
+  .section-wrap {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100dvh;
+    padding-block: 0.75rem 1rem;
+  }
+
+  .sheet {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .cv-sheet {
+    max-height: 100%;
+    align-self: start;
+  }
+
+  .sheet-body {
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  .sheet-content {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
   .timeline-entry {
     grid-template-columns: minmax(0, 1fr);
   }
-}
 
-@media (max-width: 35rem) {
-  .file-tab {
-    --tab-shoulder: 1.25rem;
-    --tab-inset: calc(var(--tab-shoulder) + 0.5rem);
+  .timeline-date {
+    white-space: normal;
   }
 
-  .folder-layer:not(:last-child) .folder-summary {
+  .contact-wrap {
+    max-width: 29rem;
+  }
+
+  .business-card {
+    aspect-ratio: auto;
+    padding: clamp(1.125rem, 5.8cqi, 2rem);
+  }
+
+  .business-card-layout {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 1.5rem;
+    overflow: visible;
+  }
+
+  .business-card-identity h1 {
+    font-size: clamp(2.25rem, 12cqi, 3.75rem);
+  }
+
+  .business-card-role {
+    max-width: none;
+    margin-block-start: 0.75rem;
+    text-wrap: balance;
+  }
+
+  .business-card-contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 0.375rem;
+    padding: 1rem 0 0;
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--soft-line);
+  }
+
+  .business-card-contacts a[href^="mailto:"] {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .business-card-contacts a:not([href^="mailto:"]) {
+    display: flex;
+    flex: 1 1 4.5rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0.125rem;
+    border: 1px solid var(--soft-line);
+    border-radius: 3px;
+    background: #fff5;
+  }
+
+  .business-card-contacts a:not([href^="mailto:"]) .contact-handle {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -825,13 +831,18 @@ body.is-navigating {
     clip-path: inset(50%);
   }
 
-  .folder-cover {
-    justify-content: flex-end;
+  .business-card-contacts a:not([href^="mailto:"]) .type-label {
+    color: var(--ink);
+    font: 700 0.875rem/1.25 system-ui, sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
   }
+}
 
-  .folder-layer:last-child .folder-cover {
-    justify-content: space-between;
-    flex-wrap: wrap;
+@media (max-width: 35rem) {
+  .file-tab {
+    --tab-shoulder: 1.25rem;
+    --tab-inset: calc(var(--tab-shoulder) + 0.5rem);
   }
 
   .card-grid {

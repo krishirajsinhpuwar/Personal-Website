@@ -1,32 +1,26 @@
 const personalFiles = {
   experience: {
-    title: 'Experience', tone: 'lime', tabPosition: 0, noun: 'roles',
-    summary: 'Platform engineering, software testing, and teaching.',
+    title: 'Experience', tone: 'lime', tabPosition: 0,
     description: 'My work in platform engineering, software testing, computer networking education, and startups.',
   },
   education: {
-    title: 'Education', tone: 'blue', tabPosition: 0.2, noun: 'programs',
-    summary: 'Information Engineering and Computer Science.',
+    title: 'Education', tone: 'blue', tabPosition: 0.2,
     description: 'Where I studied information engineering and computer science.',
   },
   projects: {
-    title: 'Projects', tone: 'orange', tabPosition: 0.4, noun: 'projects',
-    summary: 'Machine learning pipelines, web tools, and interactive software.',
+    title: 'Projects', tone: 'orange', tabPosition: 0.4,
     description: 'Software I’ve built, from machine learning workflows to web tools, games, and a browser extension.',
   },
   skills: {
-    title: 'Skills', tone: 'cyan', tabPosition: 0.6, noun: 'categories',
-    summary: 'Languages, tools, and technical domains I work in.',
+    title: 'Skills', tone: 'cyan', tabPosition: 0.6,
     description: 'The areas, languages, and tools I’ve worked with across coursework and projects.',
   },
   certificates: {
-    title: 'Certificates', tone: 'red', tabPosition: 0.8, noun: 'links',
-    summary: 'Course credentials, workshops, and programs.',
+    title: 'Certificates', tone: 'red', tabPosition: 0.8,
     description: 'Course credentials and programs in AI, cloud computing, security, and data science.',
   },
   hackathons: {
-    title: 'Hackathons', tone: 'yellow', tabPosition: 1, noun: 'events',
-    summary: 'What my teams built under a deadline.',
+    title: 'Hackathons', tone: 'yellow', tabPosition: 1,
     description: 'Projects and stories from hackathons in Heilbronn and St. Gallen.',
   },
 };
@@ -121,8 +115,7 @@ export function renderSite(data) {
 `;
 }
 
-function homeView(data) {
-  const { profile } = data;
+function homeView({ profile }) {
   const name = html(profile.name);
   const surnameStart = name.lastIndexOf(' ');
   const displayName = surnameStart === -1 ? `<span>${name}</span>` : `<span>${name.slice(0, surnameStart)}</span> <span>${name.slice(surnameStart + 1)}</span>`;
@@ -146,13 +139,10 @@ function homeView(data) {
       </section>
       <nav aria-label="Personal details">
         <ul class="folder-stack" role="list">
-          ${Object.entries(personalFiles).map(([slug, section]) => `<li class="folder-layer" style="--tab-position:${section.tabPosition}">
-            <a class="folder tone-${section.tone}" id="${slug}" href="/${slug}/" aria-labelledby="${slug}-title" aria-describedby="${slug}-summary ${slug}-count" data-legacy-bookmark>
+          ${Object.entries(personalFiles).map(([slug, section]) => `<li class="folder-layer tone-${section.tone}" style="--tab-position:${section.tabPosition}">
+            <a class="folder" id="${slug}" href="/${slug}/" aria-labelledby="${slug}-title" data-legacy-bookmark>
               ${fileTab(slug, section.title)}
-              <span class="folder-cover">
-                <span class="folder-summary" id="${slug}-summary">${section.summary}</span>
-                <span class="type-label folder-count" id="${slug}-count">${data[slug].length} ${section.noun}</span>
-              </span>
+              <span class="folder-cover"></span>
             </a>
           </li>`).join('\n          ')}
         </ul>
@@ -251,7 +241,7 @@ function fileView(data, slug) {
         ${slug === 'cv' ? `<a class="file-download" href="${linkUrl(data.profile.cv)}" download>Download CV</a>` : ''}
         <a class="file-close" href="/"><span class="file-close-label">Close file</span><span class="file-close-mark" aria-hidden="true">×</span></a>
       </div>
-      <article class="sheet tone-${tone}" style="--tab-position:${tabPosition}">
+      <article class="sheet tone-${tone}${slug === 'cv' ? ' cv-sheet' : ''}" style="--tab-position:${tabPosition}">
         ${fileTab(slug, title, true)}
         <div class="sheet-body">
           <div class="sheet-content${slug === 'cv' ? ' cv-content' : ''}" role="region" aria-label="${html(title)} content" tabindex="0">
@@ -264,7 +254,10 @@ function fileView(data, slug) {
 }
 
 function fileTab(slug, title, open = false) {
-  const tag = open ? 'h1' : 'span';
-  return `<${tag} class="file-tab ${open ? 'sheet-tab' : 'folder-tab'}" data-file="${slug}"${open ? ' tabindex="-1"' : ''}><span class="file-title"${open ? '' : ` id="${slug}-title"`}>${html(title)}</span></${tag}>`;
+  const label = html(title);
+  if (open) {
+    return `<h1 tabindex="-1" aria-label="${label}"><a class="file-tab sheet-tab" href="/" aria-label="${label}, close file"><span class="file-title">${label}</span></a></h1>`;
+  }
+  return `<span class="file-tab folder-tab" data-file="${slug}"><span class="file-title" id="${slug}-title">${label}</span></span>`;
 }
 
