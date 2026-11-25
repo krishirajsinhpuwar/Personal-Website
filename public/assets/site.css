@@ -26,7 +26,6 @@
   --display: "Noto Sans Display", "Arial Narrow", Impact, system-ui, sans-serif;
   --mono: ui-monospace, "Courier New", monospace;
   --gutter: clamp(1.125rem, 5vw, 4.5rem);
-  --ease-file: cubic-bezier(0.2, 0.72, 0.23, 1);
 }
 
 *,
@@ -157,7 +156,7 @@ h1:focus {
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.625rem;
+  gap: 0.6rem;
 }
 
 .button {
@@ -176,34 +175,12 @@ h1:focus {
 }
 
 .button-primary {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--light);
-}
-
-.button:hover {
-  border-color: var(--ink);
-  background: var(--lime);
-  color: var(--ink);
-}
-
-.intro-actions {
-  gap: 0.6rem;
-}
-
-.intro-actions .button {
-  border-color: #aaa7b4;
-  color: var(--light);
-}
-
-.intro-actions .button-primary,
-.intro-actions .button:hover {
   border-color: var(--lavender);
   background: var(--lavender);
   color: var(--ink);
 }
 
-.intro-actions .button-primary:hover {
+.button-primary:hover {
   border-color: var(--light);
   background: var(--light);
 }
@@ -404,7 +381,8 @@ h1:focus {
   background: var(--folder);
 }
 
-.file-close {
+.file-close,
+.file-download {
   display: inline-flex;
   min-height: 2.75rem;
   align-items: center;
@@ -412,9 +390,12 @@ h1:focus {
   flex-shrink: 0;
   color: var(--light);
   font: 700 clamp(0.875rem, 1.8vw, 1rem)/1.2 var(--mono);
-  text-decoration: none;
   text-underline-offset: 0.24em;
   white-space: nowrap;
+}
+
+.file-close {
+  text-decoration: none;
 }
 
 .file-close-label {
@@ -426,23 +407,11 @@ h1:focus {
   font-size: 1.25em;
 }
 
-.file-close:hover .file-close-label {
-  text-decoration-thickness: 2px;
-}
-
 .file-download {
-  display: inline-flex;
-  min-height: 2.75rem;
-  align-items: center;
-  gap: 0.55rem;
-  flex-shrink: 0;
-  color: var(--light);
-  font: 700 clamp(0.875rem, 1.8vw, 1rem)/1.2 var(--mono);
   text-decoration: underline;
-  text-underline-offset: 0.24em;
-  white-space: nowrap;
 }
 
+.file-close:hover .file-close-label,
 .file-download:hover {
   text-decoration-thickness: 2px;
 }
@@ -484,8 +453,7 @@ h1:focus {
 
 .detail-card .type-label,
 .timeline-date,
-.document-type,
-.cv-document .type-label {
+.document-type {
   color: var(--muted);
 }
 
@@ -529,6 +497,9 @@ h1:focus {
 .skill-groups,
 .skill-group {
   display: grid;
+}
+
+.skill-group {
   gap: 1.1rem;
 }
 

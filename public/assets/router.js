@@ -9,8 +9,7 @@
   const socialTitle = document.querySelector('meta[property="og:title"]');
   const socialDescription = document.querySelector('meta[property="og:description"]');
   const socialUrl = document.querySelector('meta[property="og:url"]');
-  let transition;
-  let navigation = 0;
+  let cancelTransition;
 
   history.scrollRestoration = 'manual';
 
@@ -65,140 +64,122 @@
   }
 
   function playNavigation(animations, stage, focus) {
-    let settled = false;
-    const active = {
-      cancel(focusAfter = false) {
-        if (settled) return;
-        settled = true;
-        animations.forEach((animation) => animation.cancel());
-        stage?.remove();
-        if (transition !== active) return;
-        transition = undefined;
-        page.inert = false;
-        document.body.classList.remove('is-navigating');
-        if (focusAfter) focus();
-      },
-    };
-    transition = active;
+    function cancel(focusAfter = false) {
+      if (cancelTransition !== cancel) return;
+      cancelTransition = undefined;
+      animations.forEach((animation) => animation.cancel());
+      stage?.remove();
+      page.inert = false;
+      document.body.classList.remove('is-navigating');
+      if (focusAfter) focus();
+    }
+
+    cancelTransition = cancel;
     page.inert = true;
     document.body.classList.add('is-navigating');
-    Promise.allSettled(animations.map((animation) => animation.finished)).then(() => active.cancel(true));
+    Promise.allSettled(animations.map((animation) => animation.finished)).then(() => cancel(true));
   }
 
-  function animateFile(previousView, view, file, closing, commit, focus) {
-    const stage = createNavigationStage();
+  function animateFile(previousView, view, file, closing, commit, stage) {
+    // Freeze the stack before changing scroll position. Only transforms animate;
+    // the paper keeps its final layout and the tab never stretches its text.
+    let expanded = closing ? captureSheet(previousView) : null;
+    let home = closing ? null : freezeLayout(previousView.firstElementChild, stage);
+    commit();
+    if (closing) home = freezeLayout(view.firstElementChild, stage);
+    else expanded = captureSheet(view);
 
-    try {
-      // Freeze the stack before changing scroll position. Only transforms animate;
-      // the paper keeps its final layout and the tab never stretches its text.
-      let expanded = closing ? captureSheet(previousView) : null;
-      let home = closing ? null : freezeLayout(previousView.firstElementChild, stage);
-      commit();
-      if (closing) home = freezeLayout(view.firstElementChild, stage);
-      else expanded = captureSheet(view);
+    const selected = home.querySelector(`[data-file="${file}"]`).closest('.folder-layer');
+    const folder = selected.querySelector('.folder');
+    const closedBody = folder.querySelector('.folder-cover').getBoundingClientRect();
+    const closedTab = folder.querySelector('.file-tab').getBoundingClientRect();
+    folder.querySelectorAll('.folder-cover, .folder-tab').forEach((element) => {
+      element.style.visibility = 'hidden';
+    });
 
-      const selected = home.querySelector(`[data-file="${file}"]`).closest('.folder-layer');
-      const folder = selected.querySelector('.folder');
-      const closedBody = folder.querySelector('.folder-cover').getBoundingClientRect();
-      const closedTab = folder.querySelector('.file-tab').getBoundingClientRect();
-      folder.querySelectorAll('.folder-cover, .folder-tab').forEach((element) => {
-        element.style.visibility = 'hidden';
+    expanded.body.classList.add('file-motion-body');
+    expanded.tab.classList.add('file-motion-tab');
+    expanded.tools.classList.add('file-motion-tools');
+    place(expanded.body, expanded.bodyBounds);
+    place(expanded.tab, expanded.tabBounds);
+    place(expanded.tools, expanded.toolsBounds);
+    // Keep the moving file in its stack position, above the folders behind it.
+    selected.append(expanded.body, expanded.tab);
+    stage.append(expanded.tools);
+    const paper = expanded.body.querySelector('.sheet-content');
+    paper.scrollTop = expanded.scrollTop;
+
+    const bodyTransform = `translate(${closedBody.left - expanded.bodyBounds.left}px, ${closedBody.top - expanded.bodyBounds.top}px) scale(${closedBody.width / expanded.bodyBounds.width}, ${closedBody.height / expanded.bodyBounds.height})`;
+    const tabTransform = `translate(${closedTab.left - expanded.tabBounds.left}px, ${closedTab.top - expanded.tabBounds.top}px)`;
+    const duration = closing ? 640 : 720;
+    const easing = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
+    const animations = [];
+    const animate = (element, frames, options = {}) => {
+      animations.push(element.animate(frames, { duration, easing, fill: 'both', ...options }));
+    };
+
+    animate(expanded.body, closing ? [{ transform: 'none' }, { transform: bodyTransform }] : [{ transform: bodyTransform }, { transform: 'none' }]);
+    animate(expanded.tab, closing ? [{ transform: 'none' }, { transform: tabTransform }] : [{ transform: tabTransform }, { transform: 'none' }]);
+    animate(paper, closing ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 1 }], { duration: closing ? 230 : 360, delay: closing ? 0 : 220 });
+    animate(expanded.tools, closing ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: closing ? 0 : 420 });
+    const layers = Array.from(home.querySelectorAll('.folder-layer'));
+    const selectedIndex = layers.indexOf(selected);
+    layers.forEach((layer, index) => {
+      if (layer === selected) return;
+      const drop = window.innerHeight - Math.min(layer.getBoundingClientRect().top, window.innerHeight) + 120;
+      const up = { transform: 'translateY(0)', opacity: 1 };
+      const down = { transform: `translateY(${drop}px)`, opacity: 0 };
+      const stagger = (layers.length - 1 - index) * 18;
+      const inFront = index > selectedIndex;
+      animate(layer, closing ? [down, up] : [up, down], {
+        duration: closing && inFront ? 320 : 420,
+        delay: closing ? (inFront ? 250 : 120) + stagger : index * 18,
       });
-
-      expanded.body.classList.add('file-motion-body');
-      expanded.tab.classList.add('file-motion-tab');
-      expanded.tools.classList.add('file-motion-tools');
-      place(expanded.body, expanded.bodyBounds);
-      place(expanded.tab, expanded.tabBounds);
-      place(expanded.tools, expanded.toolsBounds);
-      // Keep the moving file in its stack position, above the folders behind it.
-      selected.append(expanded.body, expanded.tab);
-      stage.append(expanded.tools);
-      const paper = expanded.body.querySelector('.sheet-content');
-      paper.scrollTop = expanded.scrollTop;
-
-      const bodyTransform = `translate(${closedBody.left - expanded.bodyBounds.left}px, ${closedBody.top - expanded.bodyBounds.top}px) scale(${closedBody.width / expanded.bodyBounds.width}, ${closedBody.height / expanded.bodyBounds.height})`;
-      const tabTransform = `translate(${closedTab.left - expanded.tabBounds.left}px, ${closedTab.top - expanded.tabBounds.top}px)`;
-      const duration = closing ? 640 : 720;
-      const easing = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
-      const animations = [];
-      const animate = (element, frames, options = {}) => {
-        animations.push(element.animate(frames, { duration, easing, fill: 'both', ...options }));
-      };
-
-      animate(expanded.body, closing ? [{ transform: 'none' }, { transform: bodyTransform }] : [{ transform: bodyTransform }, { transform: 'none' }]);
-      animate(expanded.tab, closing ? [{ transform: 'none' }, { transform: tabTransform }] : [{ transform: tabTransform }, { transform: 'none' }]);
-      animate(paper, closing ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 1 }], { duration: closing ? 230 : 360, delay: closing ? 0 : 220 });
-      animate(expanded.tools, closing ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 1 }], { duration: 220, delay: closing ? 0 : 420 });
-      const layers = Array.from(home.querySelectorAll('.folder-layer'));
-      const selectedIndex = layers.indexOf(selected);
-      layers.forEach((layer, index) => {
-        if (layer === selected) return;
-        const drop = window.innerHeight - Math.min(layer.getBoundingClientRect().top, window.innerHeight) + 120;
-        const up = { transform: 'translateY(0)', opacity: 1 };
-        const down = { transform: `translateY(${drop}px)`, opacity: 0 };
-        const stagger = (layers.length - 1 - index) * 18;
-        const inFront = index > selectedIndex;
-        animate(layer, closing ? [down, up] : [up, down], {
-          duration: closing && inFront ? 320 : 420,
-          delay: closing ? (inFront ? 250 : 120) + stagger : index * 18,
-        });
-      });
-      animate(home.querySelector('.intro'), closing ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0 }], { duration: 220, delay: closing ? 180 : 0 });
-      playNavigation(animations, stage, focus);
-    } catch (error) {
-      stage.remove();
-      throw error;
-    }
+    });
+    animate(home.querySelector('.intro'), closing ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0 }], { duration: 220, delay: closing ? 180 : 0 });
+    return animations;
   }
 
-  function animateButtonView(previousView, view, button, closing, commit, focus) {
-    const stage = createNavigationStage();
+  function animateButtonView(previousView, view, button, closing, commit, stage) {
+    const scrollArea = '.sheet-content, .business-card-layout';
+    const outgoing = freezeLayout(previousView.firstElementChild, stage);
+    const outgoingScroll = closing ? previousView.querySelector(scrollArea).scrollTop : 0;
+    const openingBounds = closing ? null : button.getBoundingClientRect();
+    commit();
+    const incoming = freezeLayout(view.firstElementChild, stage);
+    const detail = closing ? outgoing : incoming;
+    const home = closing ? incoming : outgoing;
+    stage.append(detail);
+    detail.querySelector(scrollArea).scrollTop = closing ? outgoingScroll : view.querySelector(scrollArea).scrollTop;
 
-    try {
-      const scrollArea = '.sheet-content, .business-card-layout';
-      const outgoing = freezeLayout(previousView.firstElementChild, stage);
-      const outgoingScroll = closing ? previousView.querySelector(scrollArea).scrollTop : 0;
-      const openingBounds = closing ? null : button.getBoundingClientRect();
-      commit();
-      const incoming = freezeLayout(view.firstElementChild, stage);
-      const detail = closing ? outgoing : incoming;
-      const home = closing ? incoming : outgoing;
-      stage.append(detail);
-      detail.querySelector(scrollArea).scrollTop = closing ? outgoingScroll : view.querySelector(scrollArea).scrollTop;
+    const panel = detail.querySelector('article');
+    const controls = detail.querySelector('.sheet-tools');
+    const origin = openingBounds ?? button.getBoundingClientRect();
+    const zoomFromButton = !mobileLayout.matches && origin.bottom > 0 && origin.top < window.innerHeight;
+    let collapsed = 'translateY(1.25rem) scale(0.97)';
 
-      const panel = detail.querySelector('article');
-      const controls = detail.querySelector('.sheet-tools');
-      const origin = openingBounds ?? button.getBoundingClientRect();
-      const zoomFromButton = !mobileLayout.matches && origin.bottom > 0 && origin.top < window.innerHeight;
-      let collapsed = 'translateY(1.25rem) scale(0.97)';
-
-      if (zoomFromButton) {
-        const bounds = panel.getBoundingClientRect();
-        const scale = Math.min(origin.width / bounds.width, origin.height / bounds.height);
-        const x = origin.left + origin.width / 2 - (bounds.left + bounds.width / 2);
-        const y = origin.top + origin.height / 2 - (bounds.top + bounds.height / 2);
-        collapsed = `translate(${x}px, ${y}px) scale(${scale})`;
-      }
-
-      const duration = zoomFromButton ? 440 : 280;
-      const easing = closing ? 'cubic-bezier(0.55, 0.05, 0.8, 0.45)' : 'cubic-bezier(0.2, 0.72, 0.25, 1)';
-      const animate = (element, frames, options = {}) =>
-        element.animate(closing ? frames.reverse() : frames, { duration, easing, fill: 'both', ...options });
-
-      playNavigation([
-        animate(home, [{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out' }),
-        animate(panel, [
-          { transform: collapsed, opacity: 0 },
-          { opacity: 1, offset: 0.45 },
-          { transform: 'none', opacity: 1 },
-        ]),
-        animate(controls, [{ opacity: 0 }, { opacity: 1 }], { duration: 160, delay: closing ? 0 : duration - 180 }),
-      ], stage, focus);
-    } catch (error) {
-      stage.remove();
-      throw error;
+    if (zoomFromButton) {
+      const bounds = panel.getBoundingClientRect();
+      const scale = Math.min(origin.width / bounds.width, origin.height / bounds.height);
+      const x = origin.left + origin.width / 2 - (bounds.left + bounds.width / 2);
+      const y = origin.top + origin.height / 2 - (bounds.top + bounds.height / 2);
+      collapsed = `translate(${x}px, ${y}px) scale(${scale})`;
     }
+
+    const duration = zoomFromButton ? 440 : 280;
+    const easing = closing ? 'cubic-bezier(0.55, 0.05, 0.8, 0.45)' : 'cubic-bezier(0.2, 0.72, 0.25, 1)';
+    const animate = (element, frames, options = {}) =>
+      element.animate(closing ? frames.reverse() : frames, { duration, easing, fill: 'both', ...options });
+
+    return [
+      animate(home, [{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out' }),
+      animate(panel, [
+        { transform: collapsed, opacity: 0 },
+        { opacity: 1, offset: 0.45 },
+        { transform: 'none', opacity: 1 },
+      ]),
+      animate(controls, [{ opacity: 0 }, { opacity: 1 }], { duration: 160, delay: closing ? 0 : duration - 180 }),
+    ];
   }
 
   function show(path, { initial = false, restore = false } = {}) {
@@ -210,8 +191,7 @@
       if (path === '/' && location.hash === '#profile') document.getElementById('profile').scrollIntoView();
       return;
     }
-    transition?.cancel();
-    const visit = ++navigation;
+    cancelTransition?.();
     const previousView = views.get(previous);
     if (!initial) scrollPositions.set(previous, window.scrollY);
 
@@ -224,12 +204,11 @@
     let committed = false;
 
     function commit() {
-      if (visit !== navigation || committed) return;
+      if (committed) return;
       committed = true;
       previousView.hidden = true;
       view.hidden = false;
       page.dataset.route = path;
-      page.dataset.navigated = '';
       document.title = view.dataset.title;
       canonical.href = socialUrl.content = view.dataset.canonical;
       description.content = socialDescription.content = view.dataset.description;
@@ -240,20 +219,21 @@
     }
 
     function focus() {
-      if (visit !== navigation) return;
       const returningLink = goingHome && hasHomePosition ? homeLink : null;
       (returningLink ?? view.querySelector('h1')).focus({ preventScroll: true });
     }
 
     if (motion && movingBetweenHomeAndSection) {
+      let stage;
       try {
-        if (homeLink.classList.contains('folder')) {
-          animateFile(previousView, view, file, goingHome, commit, focus);
-        } else {
-          animateButtonView(previousView, view, homeLink, goingHome, commit, focus);
-        }
+        stage = createNavigationStage();
+        const animations = homeLink.classList.contains('folder')
+          ? animateFile(previousView, view, file, goingHome, commit, stage)
+          : animateButtonView(previousView, view, homeLink, goingHome, commit, stage);
+        playNavigation(animations, stage, focus);
         return;
       } catch (error) {
+        stage?.remove();
         console.warn('Navigation animation unavailable; using the default transition.', error);
       }
     }
@@ -306,9 +286,9 @@
 
   const restoreLocation = () => show(locationRoute(), { restore: true });
   window.addEventListener('popstate', restoreLocation);
-  window.addEventListener('resize', () => transition?.cancel(true));
+  window.addEventListener('resize', () => cancelTransition?.(true));
   reduceMotion.addEventListener('change', () => {
-    if (reduceMotion.matches) transition?.cancel(true);
+    if (reduceMotion.matches) cancelTransition?.(true);
   });
   window.addEventListener('hashchange', () => {
     const path = locationRoute();

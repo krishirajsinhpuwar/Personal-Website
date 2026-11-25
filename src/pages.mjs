@@ -25,12 +25,11 @@ const personalFiles = {
   },
 };
 
-const otherSections = {
+export const sections = {
+  ...personalFiles,
   cv: { title: 'Curriculum Vitae', tone: 'lavender', tabPosition: 0, description: 'My résumé in PDF format, with my experience, education, skills, and activities.' },
   contact: { title: 'Contact', description: 'Get in touch by email or find me on LinkedIn, GitHub, and Instagram.' },
 };
-
-export const sections = { ...personalFiles, ...otherSections };
 
 export function isSectionPath(pathname) {
   const slug = /^\/([^/]+)\/?$/.exec(pathname)?.[1];
@@ -38,11 +37,12 @@ export function isSectionPath(pathname) {
 }
 
 const monthYear = new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+const htmlEntities = {
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+};
 
 function html(value) {
-  return value.replace(/[&<>"']/g, (character) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  })[character]);
+  return value.replace(/[&<>"']/g, (character) => htmlEntities[character]);
 }
 
 function linkUrl(value) {
@@ -82,10 +82,12 @@ export function renderSite(data) {
     description,
     sameAs: contact.filter((entry) => entry.url.startsWith('https:')).map((entry) => entry.url),
   };
-  const views = [home, ...Object.keys(sections).map((slug) => fileView(data, slug))];
+  const views = [home, ...Object.keys(sections).map((slug) => (
+    slug === 'contact' ? contactPage(data) : fileView(data, slug)
+  ))];
   const panels = views.map((view) => {
-    const details = pageDetails(profile, view);
-    return `<div data-view="${details.path}" data-title="${html(details.pageTitle)}" data-canonical="${linkUrl(details.canonical)}" data-description="${html(details.description)}"${view.slug ? ' hidden' : ''}>${view.body}</div>`;
+    const { path, pageTitle, canonical, description } = pageDetails(profile, view);
+    return `<div data-view="${path}" data-title="${html(pageTitle)}" data-canonical="${linkUrl(canonical)}" data-description="${html(description)}"${view.slug ? ' hidden' : ''}>${view.body}</div>`;
   }).join('\n    ');
 
   return `<!doctype html>
@@ -141,7 +143,7 @@ function homeView({ profile }) {
         <ul class="folder-stack" role="list">
           ${Object.entries(personalFiles).map(([slug, section]) => `<li class="folder-layer tone-${section.tone}" style="--tab-position:${section.tabPosition}">
             <a class="folder" id="${slug}" href="/${slug}/" aria-labelledby="${slug}-title" data-legacy-bookmark>
-              ${fileTab(slug, section.title)}
+              ${folderTab(slug, section.title)}
               <span class="folder-cover"></span>
             </a>
           </li>`).join('\n          ')}
@@ -192,9 +194,10 @@ function certificates(entries) {
 }
 
 function cvPage(preview) {
+  const version = preview.sha256.slice(0, 12);
   return `<div class="cv-pages">
     ${preview.pages.map((page, index) => `<div class="cv-page" role="group" aria-label="CV page ${index + 1} of ${preview.pages.length}">
-      <img src="${linkUrl(page.image)}?v=${preview.sha256.slice(0, 12)}" width="${Math.round(page.width)}" height="${Math.round(page.height)}" alt="" loading="lazy">
+      <img src="${linkUrl(page.image)}?v=${version}" width="${Math.round(page.width)}" height="${Math.round(page.height)}" alt="" loading="lazy">
       <p class="sr-only">${html(page.text)}</p>
     </div>`).join('\n    ')}
   </div>`;
@@ -204,9 +207,9 @@ function contactPage({ profile, contact }) {
   const names = profile.name.split(' ');
   const surname = names.pop();
   return {
-    slug: 'contact', ...otherSections.contact,
+    slug: 'contact', ...sections.contact,
     body: `<div class="wrap contact-wrap">
-      <div class="sheet-tools"><a class="file-close" href="/"><span class="file-close-label">Close card</span><span class="file-close-mark" aria-hidden="true">×</span></a></div>
+      <div class="sheet-tools">${closeLink('Close card')}</div>
       <article class="business-card" aria-label="Business card">
         <div class="business-card-layout">
           <div class="business-card-identity">
@@ -222,30 +225,34 @@ function contactPage({ profile, contact }) {
   };
 }
 
+const fileContents = {
+  projects: (entries) => cards(entries, (entry) => html(entry.category), (entry) => entry.linkLabel),
+  hackathons: (entries) => cards(entries, (entry) => dateLabel(entry.date), () => 'Read the LinkedIn post'),
+  experience: timeline,
+  education: timeline,
+  skills,
+  certificates,
+  cv: cvPage,
+};
+
 function fileView(data, slug) {
-  if (slug === 'contact') return contactPage(data);
-  const section = sections[slug];
-  const { title, tone, tabPosition, description } = section;
-  const renderers = {
-    projects: (entries) => cards(entries, (entry) => html(entry.category), (entry) => entry.linkLabel),
-    hackathons: (entries) => cards(entries, (entry) => dateLabel(entry.date), () => 'Read the LinkedIn post'),
-    experience: timeline, education: timeline, skills, certificates,
-    cv: () => cvPage(data.cvPreview),
-  };
+  const { title, tone, tabPosition, description } = sections[slug];
+  const isCV = slug === 'cv';
+  const content = fileContents[slug](isCV ? data.cvPreview : data[slug]);
 
   return {
     slug, title, description,
     body: `
     <div class="wrap section-wrap">
       <div class="sheet-tools">
-        ${slug === 'cv' ? `<a class="file-download" href="${linkUrl(data.profile.cv)}" download>Download CV</a>` : ''}
-        <a class="file-close" href="/"><span class="file-close-label">Close file</span><span class="file-close-mark" aria-hidden="true">×</span></a>
+        ${isCV ? `<a class="file-download" href="${linkUrl(data.profile.cv)}" download>Download CV</a>` : ''}
+        ${closeLink('Close file')}
       </div>
-      <article class="sheet tone-${tone}${slug === 'cv' ? ' cv-sheet' : ''}" style="--tab-position:${tabPosition}">
-        ${fileTab(slug, title, true)}
+      <article class="sheet tone-${tone}${isCV ? ' cv-sheet' : ''}" style="--tab-position:${tabPosition}">
+        ${sheetTab(title)}
         <div class="sheet-body">
-          <div class="sheet-content${slug === 'cv' ? ' cv-content' : ''}" role="region" aria-label="${html(title)} content" tabindex="0">
-            ${renderers[slug](slug === 'cv' ? data.profile : data[slug])}
+          <div class="sheet-content${isCV ? ' cv-content' : ''}" role="region" aria-label="${html(title)} content" tabindex="0">
+            ${content}
           </div>
         </div>
       </article>
@@ -253,11 +260,15 @@ function fileView(data, slug) {
   };
 }
 
-function fileTab(slug, title, open = false) {
-  const label = html(title);
-  if (open) {
-    return `<h1 tabindex="-1" aria-label="${label}"><a class="file-tab sheet-tab" href="/" aria-label="${label}, close file"><span class="file-title">${label}</span></a></h1>`;
-  }
-  return `<span class="file-tab folder-tab" data-file="${slug}"><span class="file-title" id="${slug}-title">${label}</span></span>`;
+function folderTab(slug, title) {
+  return `<span class="file-tab folder-tab" data-file="${slug}"><span class="file-title" id="${slug}-title">${html(title)}</span></span>`;
 }
 
+function sheetTab(title) {
+  const label = html(title);
+  return `<h1 tabindex="-1" aria-label="${label}"><a class="file-tab sheet-tab" href="/" aria-label="${label}, close file"><span class="file-title">${label}</span></a></h1>`;
+}
+
+function closeLink(label) {
+  return `<a class="file-close" href="/"><span class="file-close-label">${label}</span><span class="file-close-mark" aria-hidden="true">×</span></a>`;
+}

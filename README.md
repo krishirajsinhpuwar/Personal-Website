@@ -1,6 +1,6 @@
 # Krishirajsinh Puwar’s portfolio
 
-This static portfolio is built locally with Node.js and hosted on InfinityFree. The build generates `dist/index.html` and copies the files in `public/` into `dist/`. On the host, `.htaccess` routes section URLs such as `/cv` and `/projects` to `index.html` and configures the error pages in `err/`. The browser router shows the matching section and updates the URL when a visitor opens or closes a file.
+This static portfolio is built locally with Node.js and hosted on InfinityFree. The build generates `dist/index.html` and the HTML files in `dist/err/`, then includes the static files from `public/`. On the host, `.htaccess` routes section URLs such as `/cv` and `/projects` to `index.html` and configures the error pages in `err/`. The browser router shows the matching section and updates the URL when a visitor opens or closes a file.
 
 ## Build and preview
 
@@ -19,7 +19,7 @@ Open <http://127.0.0.1:8000/>. To use another port, run `node scripts/preview.mj
 - Update the topic JSON files in `content/` to change individual sections. Entries appear in file order. Use `YYYY-MM` for dates and `null` for the end date of an ongoing experience or education entry.
 - Put downloadable PDFs in `public/docs/` and reference them with paths such as `/docs/certificate.pdf`. Keep existing filenames to preserve shared links.
 - After replacing the CV PDF, run `node scripts/render-cv.mjs` and commit the generated files in `public/assets/cv/` with the PDF. Rendering requires Poppler (`pdfinfo`, `pdftocairo`, and `pdftotext`). The regular build verifies that the preview matches the PDF. The inline preview uses vector pages and accessible text, and the download serves the original PDF.
-- Edit `src/pages.mjs` for page templates or `public/assets/site.css` for styling.
+- Edit `src/pages.mjs` for page templates, `src/error-pages.mjs` for the shared error-page template, or `public/assets/site.css` for site styling.
 
 ## Deploy to InfinityFree
 

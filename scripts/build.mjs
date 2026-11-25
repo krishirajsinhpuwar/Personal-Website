@@ -2,11 +2,17 @@ import { createHash } from 'node:crypto';
 import { cp, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderErrorPages } from '../src/error-pages.mjs';
 import { isSectionPath, renderSite, sections } from '../src/pages.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(root, 'dist');
+const publicRoot = join(root, 'public');
 const topics = ['profile', ...Object.keys(sections).filter((slug) => slug !== 'cv')];
+
+async function fileHash(path) {
+  return createHash('sha256').update(await readFile(path)).digest('hex');
+}
 
 const data = Object.fromEntries(await Promise.all(topics.map(async (topic) => {
   const filename = `${topic}.json`;
@@ -19,17 +25,16 @@ const data = Object.fromEntries(await Promise.all(topics.map(async (topic) => {
   }
 })));
 
-data.cvPreview = JSON.parse(await readFile(join(root, 'public/assets/cv/manifest.json'), 'utf8'));
-const cvHash = createHash('sha256').update(await readFile(join(root, 'public', data.profile.cv))).digest('hex');
+data.cvPreview = JSON.parse(await readFile(join(publicRoot, 'assets/cv/manifest.json'), 'utf8'));
+const cvHash = await fileHash(join(publicRoot, data.profile.cv));
 if (data.cvPreview.source !== data.profile.cv || data.cvPreview.sha256 !== cvHash) {
   throw new Error('The inline CV preview is out of date. Run node scripts/render-cv.mjs, then build again.');
 }
 
 // InfinityFree caches static assets in the browser. New pages should request the matching assets.
 data.assets = Object.fromEntries(await Promise.all(['site.css', 'router.js'].map(async (filename) => {
-  const content = await readFile(join(root, 'public', 'assets', filename));
-  const version = createHash('sha256').update(content).digest('hex').slice(0, 12);
-  return [filename, `/assets/${filename}?v=${version}`];
+  const hash = await fileHash(join(publicRoot, 'assets', filename));
+  return [filename, `/assets/${filename}?v=${hash.slice(0, 12)}`];
 })));
 
 const index = renderSite(data);
@@ -50,8 +55,11 @@ async function checkUploadFiles(directory) {
 
 const output = await mkdtemp(join(root, '.dist-build-'));
 try {
-  await cp(join(root, 'public'), output, { recursive: true });
+  await cp(publicRoot, output, { recursive: true });
   await writeFile(join(output, 'index.html'), index);
+  for (const [filename, html] of renderErrorPages()) {
+    await writeFile(join(output, 'err', filename), html);
+  }
 
   for (const [, pathname] of index.matchAll(/\b(?:href|src)="(\/(?!\/)[^"?#]*)/g)) {
     if (isSectionPath(pathname)) continue;
