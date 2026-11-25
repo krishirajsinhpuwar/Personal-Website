@@ -1,38 +1,53 @@
 [
   {
+    "id": "hackathon-jivs-2026",
     "title": "JIVS Hackathon 2026",
     "date": "2026-08",
-    "description": "Built an SAP object explorer and data time machine for a decommissioned system.",
-    "url": "https://github.com/krishirajsinhpuwar/seeburg-aug-26-alfa-team"
+    "description": "My team built JiVS Chronoscope to explore archived SAP ECC 6.0 purchasing data. Users can ask questions in plain language, follow relationships between records, and trace each result back to the MCP query that produced it.",
+    "url": "https://github.com/krishirajsinhpuwar/seeburg-aug-26-alfa-team",
+    "linkLabel": "View project repository"
   },
   {
+    "id": "hackathon-techon-2026",
     "title": "TECHOn Hackathon 2026",
     "date": "2026-05",
     "description": "Built a GDPR-focused prototype for locating personally identifiable information across files in one day.",
-    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7470057524252127232/"
+    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7470057524252127232/",
+    "linkLabel": "Read the LinkedIn post"
   },
   {
+    "id": "hackathon-start-hack-2026",
     "title": "START Hack 2026",
     "date": "2026-03",
     "description": "Worked with a student team on a hackathon challenge in St. Gallen, Switzerland.",
-    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7445889348719296512/"
+    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7445889348719296512/",
+    "linkLabel": "Read the LinkedIn post"
   },
   {
+    "id": "hackathon-tomfoolery-2025",
     "title": "TOMFoolery Hackathon 2025",
     "date": "2025-11",
     "description": "My team won our challenge with WebBoost, a research-based tool for assessing blog quality.",
-    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7403125349741473792/"
+    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7403125349741473792/",
+    "linkLabel": "Read the LinkedIn post",
+    "sources": [
+      { "url": "/projects/#project-webboost", "label": "Explore WebBoost" }
+    ]
   },
   {
+    "id": "hackathon-future-city-2024",
     "title": "Future City Hackathon 2024",
     "date": "2024-09",
     "description": "Built two mobile apps at the event in Heilbronn, one for customers and one for vendors.",
-    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7264531027262427138/"
+    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7264531027262427138/",
+    "linkLabel": "Read the LinkedIn post"
   },
   {
+    "id": "hackathon-start-hack-2024",
     "title": "START Hack 2024",
     "date": "2024-03",
     "description": "My first hackathon. I spent 36 hours working on a project with students from other universities in St. Gallen.",
-    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7178263312009162753/"
+    "url": "https://www.linkedin.com/feed/update/urn:li:ugcPost:7178263312009162753/",
+    "linkLabel": "Read the LinkedIn post"
   }
 ]

@@ -457,8 +457,10 @@ h1:focus {
   color: var(--muted);
 }
 
-.detail-card .text-link {
-  align-self: flex-start;
+.card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
   margin-block-start: auto;
   padding-block-start: 0.45rem;
   font-weight: 650;

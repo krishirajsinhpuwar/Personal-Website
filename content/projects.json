@@ -1,43 +1,55 @@
 [
   {
+    "id": "project-ml-mlops",
     "title": "ML & MLOps Projects",
     "category": "Machine learning",
-    "description": "Hands-on projects covering the machine learning lifecycle, from data preprocessing and model training to experiment tracking, versioning, deployment, and automated retraining.",
+    "description": "Four projects cover machine learning and machine learning operations (MLOps). Three build a bike-sharing demand pipeline, from Dagster preprocessing and XGBoost training to MLflow tracking, data versioning, a FastAPI endpoint, and automated retraining.",
     "url": "https://github.com/krishirajsinhpuwar/ML-MLOps",
     "linkLabel": "View repository"
   },
   {
+    "id": "project-webboost",
     "title": "WebBoost",
     "category": "Web tool",
-    "description": "A blog analysis tool that scores content, user experience, and search optimization, then suggests what to improve.",
+    "description": "WebBoost analyzes a blog post URL and returns a weighted score with prioritized recommendations. It checks readability, navigation, and SEO signals such as metadata, indexing, and internal links.",
     "url": "https://web-boost.vercel.app/",
-    "linkLabel": "Open project"
+    "linkLabel": "Open project",
+    "sources": [
+      { "url": "https://github.com/krishirajsinhpuwar/WebBoost", "label": "View source code" }
+    ]
   },
   {
+    "id": "project-mediasleuth360",
     "title": "MediaSleuth360",
     "category": "Applied AI",
-    "description": "A chat interface for navigating media. Ask about a topic and get the timestamps where it appears.",
+    "description": "MediaSleuth360 is a Python and Streamlit app that transcribes and summarizes uploaded audio or video. Ask a question about the content to find the relevant timestamps.",
     "url": "https://mediasleuth360.infinityfreeapp.com/",
-    "linkLabel": "Open project"
+    "linkLabel": "Open project",
+    "sources": [
+      { "url": "https://github.com/krishirajsinhpuwar/MediaSleuth360", "label": "View source code" }
+    ]
   },
   {
+    "id": "project-checkers-ai",
     "title": "Checkers AI",
     "category": "Game AI",
-    "description": "An interactive American Checkers game with opponents powered by Minimax and Q-learning.",
+    "description": "A Python and Pygame implementation of American Checkers with two AI opponents. One uses Minimax with alpha-beta pruning. The other uses Q-learning and can be trained against Minimax.",
     "url": "https://github.com/krishirajsinhpuwar/Checkers-AI",
     "linkLabel": "View repository"
   },
   {
+    "id": "project-raycasting-in-maze",
     "title": "Raycasting in Maze",
     "category": "Graphics",
-    "description": "A C++ and SDL2 maze explorer that uses classic raycasting to render randomly generated mazes in 3D.",
+    "description": "A C++ and SDL2 maze explorer that converts a randomly generated 2D maze into a first-person 3D view using raycasting.",
     "url": "https://github.com/krishirajsinhpuwar/Raycasting-in-Maze",
     "linkLabel": "View repository"
   },
   {
+    "id": "project-fylio",
     "title": "Fylio",
     "category": "Browser extension",
-    "description": "A Chromium extension that gives local file listings a Finder-style interface.",
+    "description": "Fylio replaces local file directory listings in Chromium browsers with a Finder-style interface. It adds grid and list views, breadcrumb navigation, search, and sorting.",
     "url": "https://github.com/krishirajsinhpuwar/Fylio",
     "linkLabel": "View repository"
   }

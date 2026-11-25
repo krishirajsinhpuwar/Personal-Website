@@ -66,7 +66,17 @@ try {
     await writeFile(join(output, 'err', filename), html);
   }
   await writeFile(join(output, 'sitemap.xml'), renderSitemap(pages));
-  await writeFile(join(output, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${sitemapUrl.href}\n`);
+  await writeFile(join(output, 'robots.txt'), `User-agent: *
+Allow: /
+
+# AI search crawlers
+User-agent: OAI-SearchBot
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: ${sitemapUrl.href}
+`);
 
   const localPaths = new Set([socialCardPath]);
   for (const { markup } of pages) {

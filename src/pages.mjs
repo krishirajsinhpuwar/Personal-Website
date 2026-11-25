@@ -60,6 +60,7 @@ function dateLabel(value) {
 function pageDetails(profile, { slug, title, description, body }) {
   const path = slug ? `/${slug}/` : '/';
   return {
+    slug,
     path,
     pageTitle: slug ? `${title} | ${profile.name}` : `${profile.name} | ${profile.headline.replace(/\.$/, '')}`,
     canonical: new URL(path, profile.siteUrl).href,
@@ -68,9 +69,13 @@ function pageDetails(profile, { slug, title, description, body }) {
   };
 }
 
-function renderProfileSchema(profile, contact, url) {
+function personIdentity(profile, url) {
+  return { '@type': 'Person', '@id': `${url}#person`, name: profile.name, url };
+}
+
+function profileSchema({ profile, contact }, url) {
   const siteId = `${url}#website`;
-  const graph = {
+  return {
     '@context': 'https://schema.org',
     '@graph': [
       { '@type': 'WebSite', '@id': siteId, url, name: profile.name },
@@ -80,17 +85,53 @@ function renderProfileSchema(profile, contact, url) {
         url,
         isPartOf: { '@id': siteId },
         mainEntity: {
-          '@type': 'Person',
-          '@id': `${url}#person`,
-          url,
-          name: profile.name,
+          ...personIdentity(profile, url),
           description: profile.intro,
           sameAs: contact.filter((entry) => entry.url.startsWith('https:')).map((entry) => entry.url),
         },
       },
     ],
   };
-  return JSON.stringify(graph).replaceAll('<', '\\u003c');
+}
+
+function collectionSchema(data, { slug, canonical, pageTitle, description }, homeUrl) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    url: canonical,
+    name: pageTitle,
+    description,
+    isPartOf: { '@id': `${homeUrl}#website` },
+    about: personIdentity(data.profile, homeUrl),
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: data[slug].map((entry, index) => {
+        const url = new URL(`#${entry.id}`, canonical).href;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'CreativeWork',
+            '@id': url,
+            url,
+            name: entry.title,
+            description: entry.description,
+            citation: cardLinks(entry).map((link) => ({
+              '@type': 'CreativeWork',
+              url: new URL(link.url, homeUrl).href,
+            })),
+          },
+        };
+      }),
+    },
+  };
+}
+
+function viewSchema(data, view, homeUrl) {
+  if (!view.slug) return profileSchema(data, homeUrl);
+  if (view.slug === 'projects' || view.slug === 'hackathons') {
+    return collectionSchema(data, view, homeUrl);
+  }
 }
 
 function renderPanel({ path, pageTitle, canonical, description, body }, hidden = false) {
@@ -102,12 +143,15 @@ export function renderPages(data) {
     homeView(data),
     ...Object.keys(sections).map((slug) => slug === 'contact' ? contactPage(data) : fileView(data, slug)),
   ].map((view) => pageDetails(data.profile, view));
-  const schema = renderProfileSchema(data.profile, data.contact, views[0].canonical);
+  for (const view of views) {
+    const schema = viewSchema(data, view, views[0].canonical);
+    if (schema) view.schema = JSON.stringify(schema).replaceAll('<', '\\u003c');
+  }
 
   return views.map((view) => ({
     path: view.path,
     canonical: view.canonical,
-    markup: renderDocument(data, views, view, view.path === '/' ? schema : ''),
+    markup: renderDocument(data, views, view),
   }));
 }
 
@@ -119,11 +163,13 @@ ${pages.map(({ canonical }) => `  <url><loc>${html(canonical)}</loc></url>`).joi
 `;
 }
 
-function renderDocument({ profile, assets }, views, active, schema) {
-  const { path, pageTitle, canonical, description } = active;
+function renderDocument({ profile, assets }, views, active) {
+  const { path, pageTitle, canonical, description, schema } = active;
   const socialCard = linkUrl(new URL(socialCardPath, profile.siteUrl).href);
   const socialCardAlt = html(`${profile.name} — ${profile.headline}`);
-  const inactivePanels = views.filter((view) => view !== active).map((view) => renderPanel(view, true)).join('\n      ');
+  const inactiveViews = views.filter((view) => view !== active);
+  const inactivePanels = inactiveViews.map((view) => renderPanel(view, true)).join('\n      ');
+  const inactiveSchemas = Object.fromEntries(inactiveViews.filter((view) => view.schema).map((view) => [view.path, view.schema]));
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -145,7 +191,7 @@ function renderDocument({ profile, assets }, views, active, schema) {
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
   <link rel="stylesheet" href="${assets['site.css']}">
-  <script src="${assets['router.js']}" defer></script>${schema ? `\n  <script type="application/ld+json">${schema}</script>` : ''}
+  <script src="${assets['router.js']}" defer></script>${schema ? `\n  <script type="application/ld+json" data-page-schema>${schema}</script>` : ''}
 </head>
 <body>
   <main data-route="${path}">
@@ -153,6 +199,7 @@ function renderDocument({ profile, assets }, views, active, schema) {
     <template data-views>
       ${inactivePanels}
     </template>
+    <script type="application/json" data-view-schemas>${JSON.stringify(inactiveSchemas)}</script>
   </main>
 </body>
 </html>
@@ -207,13 +254,19 @@ function timeline(entries) {
   </ol>`;
 }
 
-function cards(entries, metadata, action) {
+function cardLinks(entry) {
+  return [{ url: entry.url, label: entry.linkLabel }, ...(entry.sources ?? [])];
+}
+
+function cards(entries, metadata) {
   return `<ul class="card-grid" role="list">
-    ${entries.map((entry) => `<li class="detail-card">
+    ${entries.map((entry) => `<li class="detail-card" id="${html(entry.id)}">
       <p class="type-label">${metadata(entry)}</p>
       <h2>${html(entry.title)}</h2>
       <p>${html(entry.description)}</p>
-      <a class="text-link" href="${linkUrl(entry.url)}">${html(action(entry))}<span class="sr-only"> for ${html(entry.title)}</span></a>
+      <div class="card-links">
+        ${cardLinks(entry).map(({ url, label }) => `<a href="${linkUrl(url)}">${html(label)}<span class="sr-only"> for ${html(entry.title)}</span></a>`).join('\n        ')}
+      </div>
     </li>`).join('\n    ')}
   </ul>`;
 }
@@ -268,8 +321,8 @@ function contactPage({ profile, contact }) {
 }
 
 const fileContents = {
-  projects: (entries) => cards(entries, (entry) => html(entry.category), (entry) => entry.linkLabel),
-  hackathons: (entries) => cards(entries, (entry) => dateLabel(entry.date), () => 'Read the LinkedIn post'),
+  projects: (entries) => cards(entries, (entry) => html(entry.category)),
+  hackathons: (entries) => cards(entries, (entry) => dateLabel(entry.date)),
   experience: timeline,
   education: timeline,
   skills,

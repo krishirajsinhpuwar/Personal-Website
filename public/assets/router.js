@@ -10,6 +10,11 @@
   const socialTitle = document.querySelector('meta[property="og:title"]');
   const socialDescription = document.querySelector('meta[property="og:description"]');
   const socialUrl = document.querySelector('meta[property="og:url"]');
+  const pageSchema = document.querySelector('script[data-page-schema]') ?? document.createElement('script');
+  const viewSchemas = JSON.parse(page.querySelector('script[data-view-schemas]').textContent);
+  viewSchemas[page.dataset.route] = pageSchema.textContent;
+  pageSchema.type = 'application/ld+json';
+  pageSchema.setAttribute('data-page-schema', '');
   let cancelTransition;
 
   history.scrollRestoration = 'manual';
@@ -216,6 +221,12 @@
       canonical.href = socialUrl.content = view.dataset.canonical;
       description.content = socialDescription.content = view.dataset.description;
       socialTitle.content = view.dataset.title;
+      if (viewSchemas[path]) {
+        pageSchema.textContent = viewSchemas[path];
+        if (!pageSchema.isConnected) document.head.append(pageSchema);
+      } else {
+        pageSchema.remove();
+      }
       const hashTarget = goingHome && location.hash === '#profile' ? document.getElementById('profile') : null;
       if (hashTarget) hashTarget.scrollIntoView();
       else window.scrollTo(0, goingHome || restore ? scrollPositions.get(path) ?? 0 : 0);

@@ -25,6 +25,10 @@ Open <http://127.0.0.1:8000/>. To use another port, run `node scripts/preview.mj
 
 The build generates `sitemap.xml` and `robots.txt` from the canonical site URL in `content/profile.json`. Each section’s description in `src/pages.mjs` sets its search and social metadata. Replace `public/assets/social-card.png` with a 1200 × 630 image if you update the social preview artwork. After deployment, you can submit the live `/sitemap.xml` URL in Google Search Console.
 
+Project and hackathon entries use their `id` fields as linkable anchors. Keep those IDs stable so shared links still reach the right entry. Their visible descriptions and source links also populate the structured data for each collection.
+
+The generated `robots.txt` explicitly allows ChatGPT, Claude, and Perplexity search crawlers. InfinityFree’s browser check can still block automated requests before they reach the site. [InfinityFree browser security documentation](https://forum.infinityfree.com/t/browser-security-system-features-and-limitations/49353)
+
 ## Deploy to InfinityFree
 
 Install Bash and `lftp` locally. Copy the values from the hosting account’s **FTP Details** into a `.env` file in the repository root. This file is ignored by Git. [InfinityFree FTP guide](https://forum.infinityfree.com/t/how-to-upload-files-with-ftp/49306)
