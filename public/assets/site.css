@@ -22,6 +22,7 @@
   --cyan: #00d8df;
   --red: #d51f46;
   --yellow: #ffd52a;
+  --lavender: #c4a5ff;
   --display: "Noto Sans Display", "Arial Narrow", Impact, system-ui, sans-serif;
   --mono: ui-monospace, "Courier New", monospace;
   --gutter: clamp(1.125rem, 5vw, 4.5rem);
@@ -197,8 +198,8 @@ h1:focus {
 
 .intro-actions .button-primary,
 .intro-actions .button:hover {
-  border-color: var(--lime);
-  background: var(--lime);
+  border-color: var(--lavender);
+  background: var(--lavender);
   color: var(--ink);
 }
 
@@ -235,6 +236,10 @@ h1:focus {
 
 .tone-yellow {
   --folder: var(--yellow);
+}
+
+.tone-lavender {
+  --folder: var(--lavender);
 }
 
 .folder-stack,

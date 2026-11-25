@@ -26,7 +26,7 @@ const personalFiles = {
 };
 
 const otherSections = {
-  cv: { title: 'Curriculum Vitae', tone: 'lime', tabPosition: 0, description: 'My résumé in PDF format, with my experience, education, skills, and activities.' },
+  cv: { title: 'Curriculum Vitae', tone: 'lavender', tabPosition: 0, description: 'My résumé in PDF format, with my experience, education, skills, and activities.' },
   contact: { title: 'Contact', description: 'Get in touch by email or find me on LinkedIn, GitHub, and Instagram.' },
 };
 
@@ -133,7 +133,7 @@ function homeView({ profile }) {
           <p>${html(profile.intro)}</p>
           <div class="actions intro-actions">
             <a class="button button-primary" id="cv" href="/cv/" data-legacy-bookmark>View CV</a>
-            <a class="button" id="contact" href="/contact/" data-legacy-bookmark>Get in touch</a>
+            <a class="button button-primary" id="contact" href="/contact/" data-legacy-bookmark>Get in touch</a>
           </div>
         </div>
       </section>
