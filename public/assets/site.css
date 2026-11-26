@@ -553,6 +553,10 @@ h1:focus {
   white-space: nowrap;
 }
 
+.cv-sheet .sheet-body {
+  aspect-ratio: auto;
+}
+
 .cv-content {
   padding: 0;
   background: #fff;
