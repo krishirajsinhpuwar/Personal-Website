@@ -4,20 +4,23 @@
     "organization": "Technical University of Munich, Heilbronn",
     "start": "2021-10",
     "end": null,
-    "url": "https://www.chn.tum.de/study-programs/bachelor-in-information-engineering"
+    "url": "https://www.chn.tum.de/study-programs/bachelor-in-information-engineering",
+    "description": "The program combines computer science, computer engineering, and management to teach the design of interconnected IT systems. The curriculum covers software engineering, databases, networks, and embedded systems."
   },
   {
     "title": "Computer Science",
     "organization": "42 Heilbronn",
     "start": "2022-10",
     "end": "2024-03",
-    "url": "https://www.42heilbronn.de/en/"
+    "url": "https://www.42heilbronn.de/en/",
+    "description": "The curriculum teaches programming by building increasingly complex software projects, collaborating with peers, and evaluating each other’s work."
   },
   {
     "title": "B.Sc. in Computer Science",
     "organization": "Ahmedabad University, India",
     "start": "2020-09",
     "end": "2021-09",
-    "url": "https://ahduni.edu.in/majors/computer-science/"
+    "url": "https://ahduni.edu.in/majors/computer-science/",
+    "description": "The program combines computing theory and systems with hands-on projects. Core subjects include programming, data structures and algorithms, databases, and operating systems."
   }
 ]
