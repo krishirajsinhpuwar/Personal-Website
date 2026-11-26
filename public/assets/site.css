@@ -176,13 +176,13 @@ h1:focus {
 
 .button-primary {
   border-color: #fff;
-  background: var(--night);
-  color: #fff;
+  background: #fff;
+  color: var(--night);
 }
 
 .button-primary:hover {
-  background: #fff;
-  color: var(--night);
+  background: var(--night);
+  color: #fff;
 }
 
 .intro-actions .button:focus-visible {
