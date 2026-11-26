@@ -6,62 +6,72 @@
   },
   {
     "title": "AI for Everyone: Master the Basics",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/e932cb33a35c49d68d591180c5864901"
   },
   {
     "title": "Introduction to Cloud Computing",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/a5ad1fb236be4dfe81f2113d454f5a74"
   },
   {
     "title": "Introduction to Linux",
-    "source": "edX",
+    "source": "the Linux Foundation",
     "url": "https://courses.edx.org/certificates/22c818ac09b24380aa2648baf4562151"
   },
   {
     "title": "Cybersecurity Basics",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/3fc72911ef18479abae2246c2bdd2088"
   },
   {
     "title": "Introduction to Cloud Development with HTML, CSS, and JavaScript",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/c0ff079c130e436bac5a6cdcb186fbcd"
   },
   {
     "title": "Developing Cloud Applications with Node.js and React",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/d4cdd8b4777649748ed891184c3becee"
   },
   {
     "title": "Developing Cloud Native Applications",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/93f59151fcc249729932428f6f7320cb"
   },
   {
     "title": "Introduction to Data Science",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/b4935fa86e6144c48e5233bcae4f8d9d"
   },
   {
     "title": "Data Science Tools",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/d2c5148cbb704c869ca817bbf81c52aa"
   },
   {
     "title": "Python Basics for Data Science",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/b2a924a302e74a138e5fac4d57702357"
   },
   {
     "title": "Blockchain Uses and Implications",
-    "source": "edX",
+    "source": "IBM",
     "url": "https://courses.edx.org/certificates/4005465d2c504a279243ca0ddbc5af24"
   },
   {
     "title": "AI Start",
     "source": "Campus Founders",
     "url": "https://www.linkedin.com/feed/update/urn:li:activity:7181878891353903104/"
+  },
+  {
+    "title": "Command Line in Linux",
+    "source": "Coursera",
+    "url": "https://www.coursera.org/account/accomplishments/verify/GJN3QE9XFBBD"
+  },
+  {
+    "title": "Programming for Everybody (Getting Started with Python)",
+    "source": "University of Michigan",
+    "url": "https://www.coursera.org/account/accomplishments/verify/4QQQVDLDUKJU"
   }
 ]
