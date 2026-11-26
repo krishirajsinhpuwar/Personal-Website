@@ -248,7 +248,10 @@ function timeline(entries) {
       <p class="type-label timeline-date">${dateLabel(entry.start)} <span aria-hidden="true">–</span><span class="sr-only"> to </span> ${entry.end === null ? 'Present' : dateLabel(entry.end)}</p>
       <div>
         <h2>${html(entry.title)}</h2>
-        <a href="${linkUrl(entry.url)}">${html(entry.organization)}</a>
+        <a href="${linkUrl(entry.url)}">${html(entry.organization)}</a>${entry.highlights?.length ? `
+        <ul class="timeline-highlights">
+          ${entry.highlights.map((highlight) => `<li>${html(highlight)}</li>`).join('\n          ')}
+        </ul>` : ''}
       </div>
     </li>`).join('\n    ')}
   </ol>`;
@@ -345,7 +348,7 @@ function fileView(data, slug) {
       </div>
       <article class="sheet tone-${tone}${isCV ? ' cv-sheet' : ''}" style="--tab-position:${tabPosition}">
         ${sheetTab(title)}
-        <div class="sheet-body">
+        <div class="sheet-body${isCV || slug === 'experience' ? ' sheet-body-fluid' : ''}">
           <div class="sheet-content${isCV ? ' cv-content' : ''}" role="region" aria-label="${html(title)} content" tabindex="0">
             ${content}
           </div>

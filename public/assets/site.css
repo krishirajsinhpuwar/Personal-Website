@@ -381,6 +381,10 @@ h1:focus {
   background: var(--folder);
 }
 
+.sheet-body-fluid {
+  aspect-ratio: auto;
+}
+
 .file-close,
 .file-download {
   display: inline-flex;
@@ -496,6 +500,15 @@ h1:focus {
   font-weight: 600;
 }
 
+.timeline-highlights {
+  margin: 0.7rem 0 0;
+  padding-inline-start: 1.15rem;
+}
+
+.timeline-highlights li + li {
+  margin-block-start: 0.45rem;
+}
+
 .skill-groups,
 .skill-group {
   display: grid;
@@ -551,10 +564,6 @@ h1:focus {
 
 .document-type {
   white-space: nowrap;
-}
-
-.cv-sheet .sheet-body {
-  aspect-ratio: auto;
 }
 
 .cv-content {

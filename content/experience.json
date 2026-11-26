@@ -4,7 +4,13 @@
     "organization": "Arkadia, Heilbronn",
     "start": "2026-04",
     "end": "2026-07",
-    "url": "https://arkadia.hn/"
+    "url": "https://arkadia.hn/",
+    "highlights": [
+      "Served as the first tester for the Data Science & MLOps track, solving challenges using only the supplied briefs and resources to check that learners had everything they needed.",
+      "Independently completed four week-long projects covering data pipelines (Dagster, pandas, uv, Docker, S3-compatible storage), supervised learning (scikit-learn and logistic regression from scratch in NumPy), XGBoost demand forecasting with time-series features, and production MLOps (MLflow, LakeFS, FastAPI).",
+      "Logged task times, approaches, blockers and learning outcomes daily to assess whether projects fit their timeframe. Documented bugs, gaps and ambiguities using the internal testing framework and delivered a report with recommendations for all four projects.",
+      "Coordinated feedback between the test lead, curriculum designers, partner-company delegates and university faculty through regular meetings. Contributed to a web app for a company presentation."
+    ]
   },
   {
     "title": "Tutor, Computer Networking and IT Security (CNS)",
@@ -18,7 +24,16 @@
     "organization": "Schwarz IT KG, Neckarsulm",
     "start": "2024-08",
     "end": "2025-09",
-    "url": "https://it.schwarz/en/about-us"
+    "url": "https://it.schwarz/en/about-us",
+    "highlights": [
+      "Migrated container images from JFrog to Azure Container Registry (ACR) across dev, global-dev, test and global-test. Configured local and CI/CD Skaffold workflows, created service connections, restricted each registry to its matching AKS cluster, removed obsolete dependencies and updated documentation.",
+      "Resolved AKS node memory overcommitment by setting resource requests and limits in service templates and overrides. Added monitoring for pods stuck in waiting states.",
+      "Developed Terraform modules, automated PostgreSQL schema and search-path setup for Kuberpult, added deployment checks for missing MongoDB connection strings, and simplified shell-script execution.",
+      "Updated Azure DevOps pipelines for ACR authentication, image pushes and triggers when files move between components. Cached Buf modules in the CI Docker image to reduce downloads and build time, and disabled a resource-intensive Go lint step on main.",
+      "Implemented span-level MongoDB tracing with Datadog’s dd-trace-go, delayed restarts to capture failed-migration logs, and fixed a MongoDB Docker health check.",
+      "Prevented secrets from appearing in Terraform error logs by passing sensitive PostgreSQL values through environment variables. Fixed and tested Azure Key Vault secret creation when Oracle account setup failed.",
+      "Forked the go-debug-helper Docker image, updated Delve for newer Go versions, integrated it with Skaffold, and configured Renovate for updates."
+    ]
   },
   {
     "title": "Tutor, Advanced Practical Lab in Computer Networking",
