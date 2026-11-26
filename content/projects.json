@@ -3,7 +3,17 @@
     "id": "project-ml-mlops",
     "title": "ML & MLOps Projects",
     "category": "Machine learning",
-    "description": "Four projects cover machine learning and machine learning operations (MLOps). Three build a bike-sharing demand pipeline, from Dagster preprocessing and XGBoost training to MLflow tracking, data versioning, a FastAPI endpoint, and automated retraining.",
+    "description": "Four projects span data pipelines, supervised learning, bike-share demand forecasting, and production MLOps. The deployment project serves predictions through a FastAPI endpoint.",
+    "technologies": ["Dagster", "pandas", "NumPy", "scikit-learn", "XGBoost", "MLflow", "LakeFS", "FastAPI", "Docker", "uv"],
+    "concepts": [
+      "Storage abstraction across local files and S3",
+      "Logistic regression with scikit-learn and from scratch in NumPy",
+      "Time-series forecasting with XGBoost and cyclical and lag features",
+      "Experiment tracking and model registration",
+      "Data versioning",
+      "Alias-based model promotion",
+      "Sensor-triggered retraining when data changes"
+    ],
     "url": "https://github.com/krishirajsinhpuwar/ML-MLOps",
     "linkLabel": "View repository"
   },
@@ -12,6 +22,11 @@
     "title": "WebBoost",
     "category": "Web tool",
     "description": "WebBoost analyzes a blog post URL and returns a weighted score with prioritized recommendations. It checks readability, navigation, and SEO signals such as metadata, indexing, and internal links.",
+    "technologies": ["Python", "Flask", "Playwright", "BeautifulSoup", "NLTK", "Vercel"],
+    "concepts": [
+      "Combining content, UX, SEO, social integration, and ad intrusiveness into a weighted score",
+      "Readability assessment with Flesch, Fog, SMOG, Coleman-Liau, and ARI"
+    ],
     "url": "https://web-boost.vercel.app/",
     "linkLabel": "Open project",
     "sources": [
@@ -22,7 +37,14 @@
     "id": "project-mediasleuth360",
     "title": "MediaSleuth360",
     "category": "Applied AI",
-    "description": "MediaSleuth360 is a Python and Streamlit app that transcribes and summarizes uploaded audio or video. Ask a question about the content to find the relevant timestamps.",
+    "description": "MediaSleuth360 helps you explore uploaded audio or video. Ask a question about the recording and jump to the relevant timestamps.",
+    "technologies": ["Python", "Streamlit", "Whisper large-v3", "Llama 3", "Groq API", "Gemini 1.5 Flash", "FFmpeg"],
+    "concepts": [
+      "Timestamped multilingual speech recognition",
+      "Automatic subtitling and structured summarization",
+      "Conversational navigation through recordings",
+      "Caching for repeat uploads"
+    ],
     "url": "https://mediasleuth360.infinityfreeapp.com/",
     "linkLabel": "Open project",
     "sources": [
@@ -33,7 +55,9 @@
     "id": "project-checkers-ai",
     "title": "Checkers AI",
     "category": "Game AI",
-    "description": "A Python and Pygame implementation of American Checkers with two AI opponents. One uses Minimax with alpha-beta pruning. The other uses Q-learning and can be trained against Minimax.",
+    "description": "An American checkers game with two AI opponents. It supports mandatory captures, multi-jumps, king promotion, and draw detection.",
+    "technologies": ["Python", "Pygame"],
+    "concepts": ["Adversarial search with Minimax and alpha-beta pruning", "Reinforcement learning with Q-learning against a Minimax opponent"],
     "url": "https://github.com/krishirajsinhpuwar/Checkers-AI",
     "linkLabel": "View repository"
   },
@@ -41,7 +65,9 @@
     "id": "project-raycasting-in-maze",
     "title": "Raycasting in Maze",
     "category": "Graphics",
-    "description": "A C++ and SDL2 maze explorer that converts a randomly generated 2D maze into a first-person 3D view using raycasting.",
+    "description": "A real-time, first-person 3D maze explorer with adjustable field of view, movement speed, and resolution.",
+    "technologies": ["C++", "SDL2", "CMake"],
+    "concepts": ["Grid traversal with DDA for raycasting", "Procedural maze generation", "Build automation"],
     "url": "https://github.com/krishirajsinhpuwar/Raycasting-in-Maze",
     "linkLabel": "View repository"
   },
@@ -49,7 +75,9 @@
     "id": "project-fylio",
     "title": "Fylio",
     "category": "Browser extension",
-    "description": "Fylio replaces local file directory listings in Chromium browsers with a Finder-style interface. It adds grid and list views, breadcrumb navigation, search, and sorting.",
+    "description": "Fylio replaces local file directory listings in Chromium browsers with a Finder-style interface that supports search and sorting.",
+    "technologies": ["JavaScript", "CSS", "Chrome Extensions (Manifest V3)"],
+    "concepts": ["Directory view design with grid and list layouts", "Breadcrumb navigation for file hierarchies", "Theme switching and color-coded file types"],
     "url": "https://github.com/krishirajsinhpuwar/Fylio",
     "linkLabel": "View repository"
   }

@@ -461,6 +461,23 @@ h1:focus {
   color: var(--muted);
 }
 
+.card-details {
+  margin: 0.25rem 0 0;
+  font-size: 0.9375rem;
+}
+
+.card-details dt {
+  font-weight: 700;
+}
+
+.card-details dd {
+  margin: 0;
+}
+
+.card-details dd + dt {
+  margin-block-start: 0.55rem;
+}
+
 .card-links {
   display: flex;
   flex-wrap: wrap;

@@ -28,19 +28,38 @@
     ]
   },
   {
-    "title": "Tools & platforms",
+    "title": "Tools, platforms & libraries",
     "items": [
       "Git/GitHub",
       "Linux",
       "Docker",
-      "Kubernetes",
+      "Kubernetes (AKS)",
       "Kustomize",
       "Terraform",
       "Azure",
+      "Skaffold",
+      "CI/CD",
+      "Datadog",
+      "Make",
       "VS Code",
       "IntelliJ IDEA",
       "GoLand",
-      "Jupyter"
+      "Jupyter",
+      "pandas",
+      "NumPy",
+      "scikit-learn",
+      "XGBoost",
+      "MLflow",
+      "Dagster"
+    ]
+  },
+  {
+    "title": "Spoken languages",
+    "items": [
+      "English (C1)",
+      "German (A1)",
+      "Gujarati (Native)",
+      "Hindi (Native)"
     ]
   }
 ]

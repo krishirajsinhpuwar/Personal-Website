@@ -267,7 +267,13 @@ function cards(entries, metadata) {
     ${entries.map((entry) => `<li class="detail-card" id="${html(entry.id)}">
       <p class="type-label">${metadata(entry)}</p>
       <h2>${html(entry.title)}</h2>
-      <p>${html(entry.description)}</p>
+      <p>${html(entry.description)}</p>${entry.technologies?.length || entry.concepts?.length ? `
+      <dl class="card-details">${entry.technologies?.length ? `
+        <dt>Tools &amp; libraries</dt>
+        <dd>${html(entry.technologies.join(', '))}</dd>` : ''}${entry.concepts?.length ? `
+        <dt>Concepts learned</dt>
+        <dd>${html(entry.concepts.join(' · '))}</dd>` : ''}
+      </dl>` : ''}
       <div class="card-links">
         ${cardLinks(entry).map(({ url, label }) => `<a href="${linkUrl(url)}">${html(label)}<span class="sr-only"> for ${html(entry.title)}</span></a>`).join('\n        ')}
       </div>
@@ -337,6 +343,7 @@ const fileContents = {
 function fileView(data, slug) {
   const { title, tone, tabPosition, description } = sections[slug];
   const isCV = slug === 'cv';
+  const fitContent = ['cv', 'experience', 'projects', 'skills'].includes(slug);
   const content = fileContents[slug](isCV ? data.cvPreview : data[slug]);
 
   return {
@@ -349,7 +356,7 @@ function fileView(data, slug) {
       </div>
       <article class="sheet tone-${tone}${isCV ? ' cv-sheet' : ''}" style="--tab-position:${tabPosition}">
         ${sheetTab(title)}
-        <div class="sheet-body${isCV || slug === 'experience' ? ' sheet-body-fluid' : ''}">
+        <div class="sheet-body${fitContent ? ' sheet-body-fluid' : ''}">
           <div class="sheet-content${isCV ? ' cv-content' : ''}" role="region" aria-label="${html(title)} content" tabindex="0">
             ${content}
           </div>
