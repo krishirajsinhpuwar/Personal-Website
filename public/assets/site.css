@@ -374,15 +374,19 @@ h1:focus {
 
 .sheet-body {
   display: flex;
-  aspect-ratio: 210 / 297;
-  min-height: min-content;
   padding: clamp(0.48rem, 1.6vw, 0.875rem);
   border-radius: 6px;
   background: var(--folder);
 }
 
-.sheet-body-fluid {
-  aspect-ratio: auto;
+@media (width > 47rem) {
+  .section-wrap {
+    container-type: inline-size;
+  }
+
+  .section-wrap .sheet-body {
+    min-height: calc(100cqi * 297 / 210);
+  }
 }
 
 .file-close,
@@ -768,7 +772,6 @@ body.is-navigating {
 
   .sheet-body {
     min-height: 0;
-    aspect-ratio: auto;
   }
 
   .sheet-content {

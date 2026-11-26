@@ -343,7 +343,6 @@ const fileContents = {
 function fileView(data, slug) {
   const { title, tone, tabPosition, description } = sections[slug];
   const isCV = slug === 'cv';
-  const fitContent = ['cv', 'experience', 'projects', 'skills'].includes(slug);
   const content = fileContents[slug](isCV ? data.cvPreview : data[slug]);
 
   return {
@@ -356,7 +355,7 @@ function fileView(data, slug) {
       </div>
       <article class="sheet tone-${tone}${isCV ? ' cv-sheet' : ''}" style="--tab-position:${tabPosition}">
         ${sheetTab(title)}
-        <div class="sheet-body${fitContent ? ' sheet-body-fluid' : ''}">
+        <div class="sheet-body">
           <div class="sheet-content${isCV ? ' cv-content' : ''}" role="region" aria-label="${html(title)} content" tabindex="0">
             ${content}
           </div>
