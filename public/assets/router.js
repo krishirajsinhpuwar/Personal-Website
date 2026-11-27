@@ -39,6 +39,24 @@
     });
   }
 
+  function rotatedBounds(element, angle) {
+    const bounds = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    const width = parseFloat(style.width);
+    const height = parseFloat(style.height);
+    const radians = angle * Math.PI / 180;
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+
+    // Recover the rotated top-left corner from the bounding box center.
+    return {
+      left: bounds.left + (bounds.width - width * cosine + height * sine) / 2,
+      top: bounds.top + (bounds.height - width * sine - height * cosine) / 2,
+      width,
+      height,
+    };
+  }
+
   function captureSheet(view) {
     const sheet = view.querySelector('.sheet');
     const body = sheet.querySelector('.sheet-body');
@@ -65,6 +83,11 @@
     const clone = visualClone(layout);
     clone.classList.add('navigation-layout');
     place(clone, layout.getBoundingClientRect());
+    // Keep the current hover offset when the stack becomes an inert clone.
+    const folders = layout.querySelectorAll('.folder');
+    clone.querySelectorAll('.folder').forEach((folder, index) => {
+      folder.style.translate = getComputedStyle(folders[index]).translate;
+    });
     stage.append(clone);
     return clone;
   }
@@ -97,8 +120,9 @@
 
     const selected = home.querySelector(`[data-file="${file}"]`).closest('.folder-layer');
     const folder = selected.querySelector('.folder');
-    const closedBody = folder.querySelector('.folder-cover').getBoundingClientRect();
-    const closedTab = folder.querySelector('.file-tab').getBoundingClientRect();
+    const angle = parseFloat(getComputedStyle(folder).rotate) || 0;
+    const closedBody = rotatedBounds(folder.querySelector('.folder-cover'), angle);
+    const closedTab = rotatedBounds(folder.querySelector('.file-tab'), angle);
     folder.querySelectorAll('.folder-cover, .folder-tab').forEach((element) => {
       element.style.visibility = 'hidden';
     });
@@ -115,8 +139,8 @@
     const paper = expanded.body.querySelector('.sheet-content');
     paper.scrollTop = expanded.scrollTop;
 
-    const bodyTransform = `translate(${closedBody.left - expanded.bodyBounds.left}px, ${closedBody.top - expanded.bodyBounds.top}px) scale(${closedBody.width / expanded.bodyBounds.width}, ${closedBody.height / expanded.bodyBounds.height})`;
-    const tabTransform = `translate(${closedTab.left - expanded.tabBounds.left}px, ${closedTab.top - expanded.tabBounds.top}px)`;
+    const bodyTransform = `translate(${closedBody.left - expanded.bodyBounds.left}px, ${closedBody.top - expanded.bodyBounds.top}px) rotate(${angle}deg) scale(${closedBody.width / expanded.bodyBounds.width}, ${closedBody.height / expanded.bodyBounds.height})`;
+    const tabTransform = `translate(${closedTab.left - expanded.tabBounds.left}px, ${closedTab.top - expanded.tabBounds.top}px) rotate(${angle}deg)`;
     const duration = closing ? 640 : 720;
     const easing = 'cubic-bezier(0.22, 0.8, 0.24, 1)';
     const animations = [];
@@ -132,7 +156,8 @@
     const selectedIndex = layers.indexOf(selected);
     layers.forEach((layer, index) => {
       if (layer === selected) return;
-      const drop = window.innerHeight - Math.min(layer.getBoundingClientRect().top, window.innerHeight) + 120;
+      const top = layer.querySelector('.folder').getBoundingClientRect().top;
+      const drop = window.innerHeight - Math.min(top, window.innerHeight) + 120;
       const up = { transform: 'translateY(0)', opacity: 1 };
       const down = { transform: `translateY(${drop}px)`, opacity: 0 };
       const stagger = (layers.length - 1 - index) * 18;

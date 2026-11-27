@@ -1,26 +1,32 @@
 const personalFiles = {
   experience: {
-    title: 'Experience', tone: 'lime', tabPosition: 0,
+    title: 'Experience', tone: 'lime', tabPosition: 0.02,
+    offsetX: -0.75, offsetY: 0, tilt: -0.65,
     description: 'Krishirajsinh Puwar’s experience in platform engineering at Schwarz IT, software testing at Arkadia, and computer networking and IT security tutoring at TUM.',
   },
   education: {
-    title: 'Education', tone: 'blue', tabPosition: 0.2,
+    title: 'Education', tone: 'blue', tabPosition: 0.23,
+    offsetX: 0.55, offsetY: 0.5, tilt: 0.7,
     description: 'Krishirajsinh Puwar’s education in Information Engineering at the Technical University of Munich and computer science at 42 Heilbronn and Ahmedabad University.',
   },
   projects: {
-    title: 'Projects', tone: 'orange', tabPosition: 0.4,
+    title: 'Projects', tone: 'orange', tabPosition: 0.38,
+    offsetX: -1, offsetY: 0.15, tilt: -0.35,
     description: 'Explore software and applied AI projects by Krishirajsinh Puwar, including machine learning and MLOps workflows, WebBoost, MediaSleuth360, and Fylio.',
   },
   skills: {
-    title: 'Skills', tone: 'cyan', tabPosition: 0.6,
+    title: 'Skills', tone: 'cyan', tabPosition: 0.64,
+    offsetX: 0.8, offsetY: 0.85, tilt: 0.85,
     description: 'Programming languages, software engineering tools, machine learning skills, and systems knowledge from Krishirajsinh Puwar’s coursework and projects.',
   },
   certificates: {
-    title: 'Certificates', tone: 'red', tabPosition: 0.8,
+    title: 'Certificates', tone: 'red', tabPosition: 0.77,
+    offsetX: -0.45, offsetY: 0.35, tilt: -0.75,
     description: 'Browse Krishirajsinh Puwar’s course credentials and certificates in AI, cloud computing, security, and data science.',
   },
   hackathons: {
-    title: 'Hackathons', tone: 'yellow', tabPosition: 1,
+    title: 'Hackathons', tone: 'yellow', tabPosition: 0.97,
+    offsetX: 0.3, offsetY: 0.55, tilt: 0,
     description: 'See Krishirajsinh Puwar’s hackathon projects from JIVS, TECHOn, START Hack, and other events in Heilbronn and St. Gallen.',
   },
 };
@@ -230,7 +236,8 @@ function homeView({ profile }) {
       </section>
       <nav aria-label="Personal details">
         <ul class="folder-stack" role="list">
-          ${Object.entries(personalFiles).map(([slug, section]) => `<li class="folder-layer tone-${section.tone}" style="--tab-position:${section.tabPosition}">
+          ${Object.entries(personalFiles).map(([slug, section], index) => `<li class="folder-layer tone-${section.tone}"
+            style="--tab-position:${section.tabPosition}; --folder-index:${index}; --folder-x:${section.offsetX}; --folder-y:${section.offsetY}; --folder-tilt:${section.tilt}">
             <a class="folder" id="${slug}" href="/${slug}/" aria-labelledby="${slug}-title" data-legacy-bookmark>
               ${folderTab(slug, section.title)}
               <span class="folder-cover"></span>

@@ -231,43 +231,43 @@ h1:focus {
 
 .folder-stack {
   --layer-step: clamp(4.75rem, 7vw, 6rem);
-  display: flex;
+  --offset-unit: clamp(0.25rem, 1.1vw, 0.875rem);
+  --spacing-unit: clamp(0.375rem, 1.2vw, 0.875rem);
+  --tilt-unit: 1deg;
+  --cover-bleed: 1.25rem;
+  display: grid;
   flex: 1;
-  flex-direction: column;
+  grid-template-columns: minmax(0, 1fr);
+  /* Give the tilted edges and hover lift room above the clipped bottom. */
+  margin: -1rem -1rem 0;
+  padding: 1rem 1rem 0;
+  overflow: clip;
   isolation: isolate;
 }
 
 .folder-layer {
   position: relative;
   z-index: 0;
+  display: flex;
+  flex-direction: column;
+  grid-area: 1 / 1;
+  padding-block-start: calc(var(--folder-index) * var(--layer-step) + var(--folder-y) * var(--spacing-unit));
   pointer-events: none;
-}
-
-.folder-layer:not(:last-child) {
-  height: var(--layer-step);
-  flex: none;
-}
-
-.folder-layer:last-child {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
-
-.folder-layer:last-child .folder {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
 }
 
 .folder {
   position: relative;
-  display: block;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   border-radius: 6px;
   color: var(--folder-ink, var(--ink));
   text-decoration: none;
   pointer-events: none;
   scroll-margin-top: 1rem;
+  translate: calc(var(--folder-x) * var(--offset-unit)) var(--folder-lift, 0px);
+  rotate: calc(var(--folder-tilt) * var(--tilt-unit));
+  transform-origin: center top;
 }
 
 .file-tab {
@@ -323,17 +323,13 @@ h1:focus {
 .folder-cover {
   position: relative;
   display: block;
-  min-height: clamp(8.5rem, 14vw, 11rem);
-  border-radius: 6px;
+  flex: 1;
+  min-height: calc(clamp(8.5rem, 14vw, 11rem) + var(--cover-bleed));
+  margin-block-end: calc(-1 * var(--cover-bleed));
+  border-radius: 6px 6px 0 0;
   background: var(--folder);
   box-shadow: 0 -3px 8px #00000018;
   pointer-events: auto;
-}
-
-.folder-layer:last-child .folder-cover {
-  flex: 1;
-  border-end-start-radius: 0;
-  border-end-end-radius: 0;
 }
 
 .folder:focus-visible,
@@ -356,6 +352,16 @@ h1:focus {
   .sheet-tab:hover .file-title {
     text-decoration: underline;
     text-underline-offset: 0.12em;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .folder {
+    transition: translate 180ms ease-out;
+  }
+
+  .folder:hover {
+    --folder-lift: -0.375rem;
   }
 }
 
@@ -719,6 +725,10 @@ body.is-navigating {
   margin: 0;
 }
 
+.navigation-layout .folder-stack {
+  overflow: visible;
+}
+
 .file-motion-body,
 .file-motion-tab,
 .file-motion-tools {
@@ -736,6 +746,7 @@ body.is-navigating {
 .file-motion-tab {
   max-width: none;
   transform: none;
+  transform-origin: top left;
   will-change: transform;
 }
 
@@ -746,6 +757,10 @@ body.is-navigating {
 @media (max-width: 47rem) {
   .intro {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .folder-stack {
+    --tilt-unit: 0.7deg;
   }
 
   .intro-copy {
