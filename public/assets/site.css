@@ -621,8 +621,9 @@ h1:focus {
 }
 
 .contact-wrap {
+  --card-ratio: 7 / 4;
   display: grid;
-  max-width: clamp(20rem, calc((100svh - 8rem) * 85 / 55), 58rem);
+  max-width: clamp(20rem, calc((100svh - 8rem) * (var(--card-ratio))), 58rem);
   min-height: 100svh;
   align-content: center;
   padding-block: 2rem;
@@ -636,10 +637,7 @@ h1:focus {
   --card-paper: #dcc4a2 url("./card-paper-oatmeal-v2.webp") center / cover;
   position: relative;
   display: grid;
-  aspect-ratio: 85 / 55;
   min-width: 0;
-  min-height: 0;
-  padding: clamp(0.75rem, 4cqi, 3rem);
   border: 1px solid #cfb18d;
   border-radius: 3px;
   background: var(--card-paper);
@@ -650,18 +648,12 @@ h1:focus {
 
 .business-card-layout {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   min-width: 0;
-  min-height: 0;
-  align-items: center;
-  align-content: safe center;
-  gap: clamp(1.25rem, 4cqi, 3rem);
-  overflow-y: auto;
-  scrollbar-width: thin;
 }
 
 .business-card-identity h1 {
-  font: 900 clamp(1.75rem, 7.3cqi, 4.25rem)/0.95 var(--display);
+  font: 900 2.5rem/0.95 var(--display);
   letter-spacing: -0.025em;
   text-transform: uppercase;
 }
@@ -671,18 +663,12 @@ h1:focus {
 }
 
 .business-card-role {
-  margin-block-start: 1.25rem;
   font-size: clamp(1rem, 2cqi, 1.125rem);
   font-weight: 600;
-  white-space: nowrap;
 }
 
 .business-card-contacts {
   display: grid;
-  align-content: start;
-  gap: 1.1rem;
-  padding-inline-start: clamp(1.5rem, 3vw, 2rem);
-  border-inline-start: 1px solid var(--soft-line);
   font-style: normal;
 }
 
@@ -704,6 +690,77 @@ h1:focus {
 
 .business-card-contacts a:hover .contact-handle {
   text-decoration-thickness: 2px;
+}
+
+@container contact (width > 35rem) {
+  .business-card {
+    --ink: rgb(57 38 25 / 88%);
+    --card-accent: #763522;
+    min-height: calc(100cqi / (var(--card-ratio)));
+    padding: clamp(2rem, 5.5cqi, 3.25rem);
+    isolation: isolate;
+  }
+
+  .business-card::before {
+    position: absolute;
+    inset: clamp(0.625rem, 1.6cqi, 0.9375rem);
+    border: 1px solid var(--soft-line);
+    box-shadow: 0 1px 0 #ffe7c56b;
+    content: "";
+    pointer-events: none;
+  }
+
+  .business-card-layout {
+    align-items: start;
+    align-content: space-between;
+    gap: clamp(1.25rem, 4cqi, 2.5rem);
+  }
+
+  @media (forced-colors: none) {
+    .business-card-layout {
+      mix-blend-mode: multiply;
+    }
+  }
+
+  .business-card-identity::before {
+    display: block;
+    width: clamp(2.5rem, 7cqi, 4rem);
+    height: 3px;
+    margin-block-end: clamp(0.75rem, 2cqi, 1.125rem);
+    background: var(--card-accent);
+    content: "";
+  }
+
+  .business-card-identity h1 {
+    font-size: clamp(2.5rem, 8.5cqi, 4.75rem);
+    text-shadow: 0 0 0.65px rgb(57 38 25 / 24%);
+  }
+
+  .business-card-role {
+    margin-block-start: 0.65rem;
+  }
+
+  .business-card-contacts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 clamp(1.5rem, 5cqi, 3rem);
+  }
+
+  .business-card-contacts a {
+    gap: 0.125rem;
+    padding-block: 0.625rem;
+    border-block-start: 1px solid var(--soft-line);
+    line-height: 1.35;
+  }
+
+  .business-card-contacts .type-label,
+  .business-card-contacts a:is(:hover, :focus-visible) {
+    color: var(--card-accent);
+  }
+
+  .business-card-contacts .contact-handle {
+    text-decoration-color: color-mix(in srgb, currentColor 65%, transparent);
+    text-decoration-thickness: 1px;
+  }
 }
 
 body.is-navigating {
@@ -828,7 +885,6 @@ body.is-navigating {
   }
 
   .business-card-role {
-    white-space: normal;
     text-wrap: balance;
   }
 }
@@ -836,20 +892,10 @@ body.is-navigating {
 @container contact (max-width: 35rem) {
   .business-card {
     --card-inset: clamp(1.25rem, 7cqi, 2.25rem);
-    aspect-ratio: auto;
-    padding: 0;
     border-radius: 0.75rem;
     background: var(--sheet);
     box-shadow: 0 12px 36px #0008;
     overflow: clip;
-  }
-
-  .business-card-layout {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: stretch;
-    align-content: start;
-    gap: 0;
-    overflow: visible;
   }
 
   .business-card-identity {
@@ -867,9 +913,7 @@ body.is-navigating {
   }
 
   .business-card-contacts {
-    gap: 0;
     padding: 0.25rem var(--card-inset);
-    border: 0;
     font-size: 0.9375rem;
   }
 
